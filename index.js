@@ -1,43 +1,76 @@
-(function () {
-    const second = 1000,
-          minute = second * 60,
-          hour = minute * 60,
-          day = hour * 24;
-  
-    //I'm adding this section so I don't have to keep updating this pen every year :-)
-    //remove this if you don't need it
-    let today = new Date(),
-        dd = String(today.getDate()).padStart(2, "0"),
-        mm = String(today.getMonth() + 1).padStart(2, "0"),
-        yyyy = today.getFullYear(),
-        nextYear = yyyy + 1,
-        dayMonth = "09/30/",
-        birthday = dayMonth + yyyy;
-    
-    today = mm + "/" + dd + "/" + yyyy;
-    if (today > birthday) {
-      birthday = dayMonth + nextYear;
+//Variables
+const startBtn = document.querySelector('.stopwatch__start');
+const stopBtn = document.querySelector('.stopwatch__stop');
+const resetBtn = document.querySelector('.stopwatch__reset');
+const hourContent = document.getElementById("hour");
+const minuteContent = document.getElementById("minute");
+const secondeContent = document.getElementById("seconde");
+let watchInterval;
+
+//Events
+eventListners();
+function eventListners() {
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetWatch);
     }
-    //end
-    
-    const countDown = new Date(birthday).getTime(),
-        x = setInterval(function() {    
-  
-          const now = new Date().getTime(),
-                distance = countDown - now;
-  
-          document.getElementById("days").innerText = Math.floor(distance / (day)),
-            document.getElementById("hours").innerText = Math.floor((distance % (day)) / (hour)),
-            document.getElementById("minutes").innerText = Math.floor((distance % (hour)) / (minute)),
-            document.getElementById("seconds").innerText = Math.floor((distance % (minute)) / second);
-  
-          //do something later when date is reached
-          if (distance < 0) {
-            document.getElementById("headline").innerText = "It's my birthday!";
-            document.getElementById("countdown").style.display = "none";
-            document.getElementById("content").style.display = "block";
-            clearInterval(x);
-          }
-          //seconds
-        }, 0)
-    }());
+    if (startBtn) {
+        startBtn.addEventListener('click', startWatch);
+    }
+
+    if (stopBtn) {
+        stopBtn.addEventListener('click', stopWatch);
+    }
+}
+
+//Functions
+function resetWatch() {
+    hourContent.innerHTML = '00';
+    minuteContent.innerHTML = '00';
+    secondeContent.innerHTML = '00';
+    stopWatch();
+}
+
+function startWatch() {
+    var seconde = parseInt(secondeContent.textContent.trim());
+    watchInterval = setInterval(() => {
+        seconde += 1;
+        if(seconde == 60){
+            seconde = 0;
+            var minute = parseInt(minuteContent.textContent.trim());
+            minute++;
+            if(minute == 60){
+                minute = 0;
+                var hour = parseInt(hourContent.textContent.trim());
+                hour++;
+                if(hour == 24){
+                    hour = 0;
+                }
+                if (hour < 10) {
+                    hourContent.innerHTML = "0" + hour;
+                }
+                else {
+                    hourContent.innerHTML = hour;
+                }    
+            }
+            if (minute < 10) {
+                minuteContent.innerHTML = "0" + minute;
+            }
+            else {
+                minuteContent.innerHTML = minute;
+            }    
+        }
+        if (seconde < 10) {
+            secondeContent.innerHTML = "0" + seconde;
+        }
+        else {
+            secondeContent.innerHTML = seconde;
+        }
+
+    }, 1000);
+}
+
+function stopWatch() {
+    if (watchInterval) {
+        clearInterval(watchInterval);
+    }
+}
