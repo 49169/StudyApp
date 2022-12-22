@@ -25,6 +25,37 @@ var x = setInterval(function() {
   }
 }, 1000);
 
+const audio = document.getElementById("youtube");
+const playButton = document.querySelector('.play-button');
+const player = document.getElementById("player");
+const volumeSlider = document.getElementById("volumeSlider");
+let isPlaying = false;
+
+
+player.onclick = function(){
+	toggleAudio();
+};
+
+volumeSlider.addEventListener('input', (e) => {
+  const value = e.target.value;
+  //showRangeProgress(e.target);
+  //outputContainer.textContent = value;
+  audio.volume = value / 100;
+});
+
+function toggleAudio(){
+  console.log("toggle audio");
+  if (isPlaying) {
+		audio.pause()
+		isPlaying = false
+		//playButton.classList.remove('playing')
+	} else {
+		audio.play()
+		isPlaying = true
+		//playButton.classList.add('playing')
+	}
+}
+
 var vid = "Mi12nUC2QKo&t",
   audio_streams = {},
   audio_tag = document.getElementById("youtube");
@@ -97,3 +128,5 @@ fetch("https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleuserc
     })
   }
 });
+
+
