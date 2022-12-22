@@ -1,6 +1,5 @@
 body {
-    padding: 0;
-    margin: 0;
+    
     font-family: sans-serif;
 }
 
@@ -28,9 +27,7 @@ body {
     margin-bottom: 15px;
 }
 
-.ambient-container{
-    top:50%;
-}
+
 
 .btn{
     border: 1px solid #ddd;
@@ -44,6 +41,15 @@ body {
      -webkit-transition: background-color .2s ease-in; 
      transition: background-color .2s ease-in; 
  }
+
+.container {
+    display: flex;
+	flex-direction: column;
+	
+	justify-content: center;
+	align-items: flex-start; 
+}
+  
 
 #volumeSlider{
     height: 50px;
