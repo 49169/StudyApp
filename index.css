@@ -17,3 +17,42 @@ body {
     justify-content: center;
     text-align: center;
 }
+
+.audio-cube{
+    height: 50px;
+    width: 80px;
+    display:flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 60px;
+    margin-bottom: 15px;
+}
+
+.ambient-container{
+    top:50%;
+}
+
+.btn{
+    border: 1px solid #ddd;
+    background-color: #f0f0f0;
+    height: 50px;
+    width: 50px;
+    margin-right: 10px;
+     
+     -o-transition: background-color .2s ease-in; 
+     -moz-transition: background-color .2s ease-in;
+     -webkit-transition: background-color .2s ease-in; 
+     transition: background-color .2s ease-in; 
+ }
+
+#volumeSlider{
+    height: 50px;
+    width: 10%;
+}
+
+input[type=range][orient=vertical]
+{
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* Chromium */
+   
+}
