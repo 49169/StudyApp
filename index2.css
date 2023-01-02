@@ -1,13 +1,23 @@
+body{
+    height: 100vh;
+}
+
+.section-container{
+    display: flex;
+    justify-content: space-between;
+    height: 100vh;
+}
+
 .container{
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content:center;
+    height: 100%;
+    width: 25%;
 }
 
-#container{
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
+.timer{
+    
+    margin: 0 auto;
 }
+
