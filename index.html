@@ -62,7 +62,13 @@
         
     </div>
     
+    <script src="https://yvoschaap.com/ytpage/ytembed.js"></script>
+    <div id="youtubeDivSearch"></div>
+    <form onsubmit="ytEmbed.init({'block':'youtubeDivSearch','type':'search','q':document.getElementById('ytSearchField').value,'results': 5,'meta':true}); return false;">
+    <input type="text" id="ytSearchField">  <input type="submit" value="  Search   ">
+    </form>
     
+
     <script src="index.js" type ="module"></script>
     
 </body>
