@@ -3,18 +3,24 @@ body {
     font-family: sans-serif;
 }
 
-#demo{
+.container {
     display: flex;
-    justify-content: center;
-    text-align: center;
-    top: 70%;
-    left: 50%;
-    position: absolute
+	flex-direction: column;
+	
+	justify-content: center;
+	align-items: flex-start; 
 }
+
+div.timer{
+    text-align: center;
+}
+
 #reset{
     display: flex;
     justify-content: center;
     text-align: center;
+    position: relative;
+    left:50%;
 }
 
 .audio-cube{
@@ -40,13 +46,7 @@ body {
      transition: background-color .2s ease-in; 
  }
 
-.container {
-    display: flex;
-	flex-direction: column;
-	
-	justify-content: center;
-	align-items: flex-start; 
-}
+
   
 
 #volumeSlider{
