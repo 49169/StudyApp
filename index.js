@@ -1,5 +1,6 @@
 // Set the date we're counting down to
-var countDownDate = new Date("Jan 5, 2024 15:37:25").getTime();
+var minutes = 8;
+var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 
 // Update the count down every 1 second
 var x = setInterval(function() {
@@ -16,7 +17,7 @@ var x = setInterval(function() {
   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
   // Display the result in the element with id="demo"
-  document.getElementById("timer-display").innerHTML = minutes + "m " + seconds + "s ";
+  timer.innerHTML = minutes + "m " + seconds + "s ";
 
   // If the count down is finished, write some text
   if (distance < 0) {
@@ -25,12 +26,22 @@ var x = setInterval(function() {
   }
 }, 1000);
 
+function updateTimer(){
+
+}
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
 const player = document.getElementById("player");
 const volumeSlider = document.getElementById("volumeSlider");
+const timer = document.getElementById("timer-display");
+const resetButton = document.getElementById("reset");
+const selectTime = document.getElementById("select-time");
 let isPlaying = false;
 
+resetButton.onclick = function(){
+  timer.style.display="none";
+  selectTime.style.display="block";
+}
 
 player.onclick = function(){
 	toggleAudio();
