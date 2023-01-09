@@ -15,6 +15,10 @@ body{
     height: 100%;
     width: 25%;
 }
+.center-container{
+    width: 40%;
+    
+}
 
 .timer{
     
@@ -28,5 +32,9 @@ body{
 .ytSearch{
     position:fixed;
     bottom:100px;
+}
+
+img{
+    object-fit: scale-down;
 }
 
