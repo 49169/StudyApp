@@ -47,12 +47,17 @@ body{
 
 .select-time button{
     font-size: 25px;
+    
     text-align: center;
     padding: 5px 7px;
     border: none;
     border-radius: 5px;
     margin-left: 8px;
     margin-right: 8px;
+
+    background-color: white;
+
+    outline: 2px solid;
 }
 
 .select-time button:hover{
@@ -63,10 +68,8 @@ body{
     border-radius: 5px;
     margin-left: 8px;
     margin-right: 8px;
-    background-color: azure;
+    background-color: cornflowerblue;;
 }
-
-
 
 .reset-button{
     position: relative;
@@ -77,8 +80,17 @@ body{
     border-radius: 5px;
     
     font-size: 27px;
+    
     text-align: center;
     padding: 5px 7px;
+
+    background-color: white;
+
+    outline: 2px solid;
+}
+
+.reset-button:hover{
+    background-color: cornflowerblue;
 }
 
 #youtubeDivSearch .ytlist .ytcredits{
@@ -139,7 +151,9 @@ input[type="range"]{
     display:inline-block;
     background-color: aliceblue;
     border-radius: 20px;
-    padding: 5px;
+    padding: 5px 6px;
+    
+    border: 2px solid;
 }
 
 .img-container:hover{
