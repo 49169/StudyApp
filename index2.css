@@ -17,21 +17,20 @@ body{
 }
 
 .right-container{
-    display: flex;
-    flex-direction: column;
-    justify-content:center;
+    display: block;
     height: 100%;
     width: 25%;
 }
 
 .center-container{
-    
+    height:100%;
 }
 
 .timer{  
     position: relative;
     margin: auto;
-    top:75%;
+    margin-top: 10px;
+    
     text-align: center;
     font-size: 40px;
     font-family: sans-serif;
@@ -39,7 +38,7 @@ body{
 .select-time {
     display: block;
     position: relative;
-    top: 75%;
+    margin-top: 10px;
     font-size: 20px;
     text-align: center;
     padding: 5px 7px;
@@ -54,6 +53,8 @@ body{
     border-radius: 5px;
     margin-left: 8px;
     margin-right: 8px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 
     background-color: white;
 
@@ -71,14 +72,20 @@ body{
     background-color: cornflowerblue;;
 }
 
+.timer-buttons{
+    position: relative;
+    text-align: center;
+    margin-top: 20px;
+    display: none;
+}
+
 .reset-button{
     position: relative;
-    margin: auto;
-    top:80%;
-    display: none;
+    
     border:none;
     border-radius: 5px;
-    
+    margin-left: 8px;
+    margin-right: 8px;
     font-size: 27px;
     
     text-align: center;
@@ -93,8 +100,36 @@ body{
     background-color: cornflowerblue;
 }
 
+.stop-button{
+    position: relative;  
+    margin-left: 8px;
+    margin-right: 8px;  
+    border:none;
+    border-radius: 5px;
+    font-size: 27px;
+    text-align: center;
+    padding: 5px 7px;
+
+    background-color: white;
+
+    outline: 2px solid;
+}
+
 #youtubeDivSearch .ytlist .ytcredits{
     color:transparent;
+    
+}
+
+.ytSearch{
+    margin-left: 30px;
+    background-color:cornflowerblue;
+    border-radius: 5px;
+    padding: 8px;
+    z-index: 100;
+}
+
+#youtubeDivSearch{
+    background-color:cornflowerblue;
 }
 
 .ytSearch{
@@ -108,6 +143,7 @@ body{
     
     width: 500px;
     margin-left: auto;
+    margin-top: 50px;
     margin-right: auto;
     object-fit: scale-down;
 }
@@ -158,4 +194,15 @@ input[type="range"]{
 
 .img-container:hover{
     background-color: antiquewhite;
+}
+
+.mode-container{
+    text-align: right;
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+    
+    margin-right: 10px;
+    
 }

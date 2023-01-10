@@ -37,7 +37,8 @@ function updateTimer(event){
   timer.innerHTML = "";
   timer.style.display="block";
   selectTime.style.display="none";
-  resetButton.style.display="block"
+  document.getElementById("timer-buttons").style.display="block";
+  //resetButton.style.display="block"
   
   minutes = event.currentTarget.time;
   countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
@@ -89,7 +90,8 @@ for(let i = 0; i<ambientList.length; i++){
 resetButton.onclick = function(){
   timer.style.display="none";
   selectTime.style.display="block";
-  resetButton.style.display="none"
+  document.getElementById("timer-buttons").style.display="none";
+  //resetButton.style.display="none"
 }
 
 player.onclick = function(){
