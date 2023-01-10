@@ -36,20 +36,47 @@ body{
     font-size: 40px;
     font-family: sans-serif;
 }
-.select-time{
-    display: none;
+.select-time {
+    display: block;
     position: relative;
     top: 75%;
     font-size: 20px;
+    text-align: center;
+    padding: 5px 7px;
 }
+
+.select-time button{
+    font-size: 25px;
+    text-align: center;
+    padding: 5px 7px;
+    border: none;
+    border-radius: 5px;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.select-time button:hover{
+    font-size: 25px;
+    text-align: center;
+    padding: 5px 7px;
+    border: none;
+    border-radius: 5px;
+    margin-left: 8px;
+    margin-right: 8px;
+    background-color: azure;
+}
+
+
 
 .reset-button{
     position: relative;
     margin: auto;
     top:80%;
-    display: block;
+    display: none;
+    border:none;
+    border-radius: 5px;
     
-    font-size: 20px;
+    font-size: 27px;
     text-align: center;
     padding: 5px 7px;
 }
@@ -77,7 +104,7 @@ input[type="range"]{
     -webkit-appearance: none;
     transform: rotate(270deg);
     height: 20px;
-    width: 45px;
+    width: 50px;
 }
 .input-range{
     position: relative;
