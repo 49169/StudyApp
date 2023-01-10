@@ -123,7 +123,7 @@ body{
 .ytSearch{
     margin-left: 30px;
     background-color:cornflowerblue;
-    border-radius: 5px;
+    border-radius: 10px;
     padding: 8px;
     z-index: 100;
 }
@@ -179,7 +179,7 @@ input[type="range"]{
 }
 
 .audio-cube{
-    margin-left:30px;
+    margin-left:100px;
     margin-bottom: 10px;
     
 }
@@ -203,6 +203,6 @@ input[type="range"]{
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
     
-    margin-right: 10px;
+    margin-right: 100px;
     
 }

@@ -53,6 +53,7 @@ const player = document.getElementById("player");
 
 const timer = document.getElementById("timer-display");
 const resetButton = document.getElementById("reset");
+const stopButton = document.getElementById("stop");
 const selectTime = document.getElementById("select-time");
 let isPlaying = false;
 
@@ -92,6 +93,9 @@ resetButton.onclick = function(){
   selectTime.style.display="block";
   document.getElementById("timer-buttons").style.display="none";
   //resetButton.style.display="none"
+}
+stopButton.onclick = function(){
+  
 }
 
 player.onclick = function(){
