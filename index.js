@@ -3,8 +3,9 @@ var minutes = 8;
 var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 
 // Update the count down every 1 second
-var x = setInterval(function() {
+var x = null;
 
+function timerRunner(){
   // Get today's date and time
   var now = new Date().getTime();
 
@@ -24,10 +25,18 @@ var x = setInterval(function() {
     clearInterval(x);
     document.getElementById("timer-display").innerHTML = "EXPIRED";
   }
-}, 1000);
+}
 
-function updateTimer(){
+function updateTimer(time){
+  console.log("here");
+  timer.style.display="block";
+  selectTime.style.display="none";
+  minutes = time;
+  countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 
+  clearInterval(x);
+  x = setInterval(timerRunner, 1000);
+  
 }
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
@@ -37,6 +46,12 @@ const timer = document.getElementById("timer-display");
 const resetButton = document.getElementById("reset");
 const selectTime = document.getElementById("select-time");
 let isPlaying = false;
+
+var buttonList = ["8min", "12min", "16min", "20min", "24min"];
+
+for(let i = 0; i <5; i++){
+  document.getElementById(buttonList[i]).addEventListener("click", updateTimer, 8+i*4);
+}
 
 resetButton.onclick = function(){
   timer.style.display="none";
