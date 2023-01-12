@@ -4,7 +4,14 @@ document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
 var minutes = 8;
 var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 
+
 var checkList = [];
+//localStorage.clear();
+if(localStorage.getItem('checkList')){
+
+  checkList = JSON.parse(localStorage.getItem('checkList'));
+}
+
 
 var distance = 0;
 
@@ -146,11 +153,11 @@ const taskList = document.getElementById('tasks');
 form.onsubmit = function (e) {
 	e.preventDefault();
 	const inputField = document.getElementById('task-input');
-	addTask(inputField.value);
+	addTask(inputField.value, true);
 	form.reset();
 };
 
-function addTask(description) {
+function addTask(description, addToStorage) {
 	const taskContainer = document.createElement('div');
 	const newTask = document.createElement('input');
 	const taskLabel = document.createElement('label');
@@ -169,7 +176,32 @@ function addTask(description) {
 	taskContainer.appendChild(taskLabel);
 
 	taskList.appendChild(taskContainer);
+
+  if(addToStorage){
+    checkList.push(description);
+    localStorage.setItem('checkList', JSON.stringify(checkList));
+  }
 }
+
+for(let i = 0; i<checkList.length; i++){
+  addTask(checkList[i]);
+}
+//Pie Chart
+
+var timeChart = new Chart("timeChart", {
+  type: 'pie',
+  data: {
+    labels: ["Break", "Study"],
+    datasets: [{
+      backgroundColor: [
+        "#2ecc71",
+        "#3498db",
+        
+      ],
+      data: [12, 19]
+    }]
+  }
+});
 
 //video
 

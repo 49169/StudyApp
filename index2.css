@@ -130,6 +130,7 @@ body{
     position:fixed;
     bottom:100px;
     outline: 2px solid;
+    cursor: pointer;
 }
 
 #youtubeDivSearch{
@@ -233,6 +234,7 @@ input[type="range"]{
     font-family: sans-serif;
     position: fixed;
     bottom: 100px;
+    cursor: pointer;
 }
 
 .checklist {
