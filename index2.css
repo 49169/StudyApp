@@ -288,3 +288,15 @@ input[type="text"] {
     border-radius: 5px;
     border: 1px solid black;
 }
+
+.statsDropdown{
+    background-color: azure;
+    padding: 10px;
+    border-radius: 8px;
+    outline: 2px solid;
+    font-family: sans-serif;
+    position: fixed;
+    bottom: 100px;
+    right: 50px;
+    cursor: pointer;
+}
