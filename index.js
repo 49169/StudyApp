@@ -4,6 +4,8 @@ document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
 var minutes = 8;
 var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 
+var checkList = [];
+
 var distance = 0;
 
 // Update the count down every 1 second
@@ -30,7 +32,6 @@ function timerRunner(){
   else{
     timer.innerHTML = minutes + ":" + seconds + " ";
   }
-  
 
   // If the count down is finished, write some text
   if (distance < 0) {
@@ -123,11 +124,6 @@ stopButton.onclick = function(){
   
 }
 
-player.onclick = function(){
-	toggleAudio();
-};
-
-
 
 function toggleAudio(event){
   console.log("toggle audio");
@@ -143,6 +139,38 @@ function toggleAudio(event){
     event.currentTarget.style.backgroundColor = "#4CAF50";
 	}
 }
+
+const form = document.getElementById('task-form');
+const taskList = document.getElementById('tasks');
+
+form.onsubmit = function (e) {
+	e.preventDefault();
+	const inputField = document.getElementById('task-input');
+	addTask(inputField.value);
+	form.reset();
+};
+
+function addTask(description) {
+	const taskContainer = document.createElement('div');
+	const newTask = document.createElement('input');
+	const taskLabel = document.createElement('label');
+	const taskDescriptionNode = document.createTextNode(description);
+
+	newTask.setAttribute('type', 'checkbox');
+	newTask.setAttribute('name', description);
+	newTask.setAttribute('id', description);
+
+	taskLabel.setAttribute('for', description);
+	taskLabel.appendChild(taskDescriptionNode);
+  taskLabel.className = 'taskLabel';
+
+	taskContainer.classList.add('task-item');
+	taskContainer.appendChild(newTask);
+	taskContainer.appendChild(taskLabel);
+
+	taskList.appendChild(taskContainer);
+}
+
 //video
 
 function audioSetup(id, element){

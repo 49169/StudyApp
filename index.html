@@ -87,24 +87,15 @@
                     </div>
                 </div>
             </div>
-            <details>
-                <div class="checklist">
-                    <label>
-                      <input type="checkbox" name="" id="" />
-                      <i></i>
-                      <span>CAS</span>
-                    </label>
-                    <label>
-                      <input type="checkbox" name="" id="" />
-                      <i></i>
-                      <span>WEE</span>
-                    </label>
-                    <label>
-                      <input type="checkbox" name="" id="" />
-                      <i></i>
-                      <span>TEST</span>
-                    </label>
-                  </div>
+            <details class="checkListDropdown">
+                <summary>Tasks</summary>
+                <div class="checklist" id="tasks">
+                    
+                </div>
+                <form id="task-form">
+                    <input id="task-input" name="task" type="text" placeholder="type your task" />
+                    <button type="submit">Add</button>
+                </form>
             </details>
             
 
