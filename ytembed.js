@@ -1,4 +1,4 @@
-<!--
+document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
 
 /* Source: http://yvoschaap.com */
 /* Build first in '06 */
@@ -246,7 +246,7 @@ var ytEmbed = {
         if (json.error) {
             this.message('An error occured:<br>' + json.error.message);
         } else if (json.items) {
-            var ul = document.createElement('ul');
+            var ul = document.createElement('div');
             ul.className = 'ytlist';
             
             ul.appendChild(credits);
@@ -270,7 +270,13 @@ var ytEmbed = {
                     playlist += id + ",";
                 }
 
-                var li = document.createElement('li');
+                var li = document.createElement('div');
+                li.className="search-result"
+                //Play audio on click
+                li.addEventListener('click', this.playVideo.bind(this, {
+                    'id': id,
+                    'cfg': cfg
+                }), false);
 
                 //a link to our javascript overlay function
                 var a = document.createElement('a');
@@ -315,7 +321,7 @@ var ytEmbed = {
                     //this.cfg.layout = full
                     li.innerHTML = `     
                         <div> ${entry.snippet.title}</div>
-                        `
+                    `
                     //li.firstChild.firstChild.firstChild.firstChild.appendChild(a);
                 }
                 ul.appendChild(li);

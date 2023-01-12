@@ -1,3 +1,5 @@
+document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
+
 // Set the date we're counting down to
 var minutes = 8;
 var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
