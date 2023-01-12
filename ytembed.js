@@ -328,7 +328,7 @@ var ytEmbed = {
                 } else {
                     //this.cfg.layout = full
                     li.innerHTML = `     
-                        <div> ${entry.snippet.title}</div>
+                        <div>>  ${entry.snippet.title}</div>
                     `
                     //li.firstChild.firstChild.firstChild.firstChild.appendChild(a);
                 }

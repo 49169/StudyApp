@@ -4,15 +4,19 @@ document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
 var minutes = 8;
 var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 
+var distance = 0;
+
 // Update the count down every 1 second
 var x = null;
+
+var paused = false;
 
 function timerRunner(){
   // Get today's date and time
   var now = new Date().getTime();
 
   // Find the distance between now and the count down date
-  var distance = countDownDate - now;
+  distance = countDownDate - now;
 
   // Time calculations for days, hours, minutes and seconds
  
@@ -47,7 +51,17 @@ function updateTimer(event){
 
   clearInterval(x);
   x = setInterval(timerRunner);
-  
+}
+
+function pauseTimer(){
+  paused = true;
+  clearInterval(x);
+}
+
+function resumeTimer(){
+  paused = false;
+  countDownDate = new Date().getTime() + (distance);
+  x = setInterval(timerRunner)
 }
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
@@ -97,6 +111,15 @@ resetButton.onclick = function(){
   //resetButton.style.display="none"
 }
 stopButton.onclick = function(){
+ 
+  if(paused == false){
+    pauseTimer();
+    stopButton.innerHTML = 'start';
+  }
+  else{
+    resumeTimer();
+    stopButton.innerHTML = 'stop';
+  }
   
 }
 
