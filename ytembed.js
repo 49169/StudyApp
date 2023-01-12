@@ -246,10 +246,18 @@ var ytEmbed = {
         if (json.error) {
             this.message('An error occured:<br>' + json.error.message);
         } else if (json.items) {
-            var ul = document.createElement('div');
-            ul.className = 'ytlist';
+            var ul = null;
+            if(document.getElementById("ytlist")){
+                ul = document.getElementById("ytlist");
+            }
+            else{
+                ul = document.createElement('div');
+                ul.className = 'ytlist';
+                ul.id = 'ytlist';
+            }
+            ul.innerHTML='';
             
-            ul.appendChild(credits);
+            //ul.appendChild(credits);
 
             var playlist = "";
 
