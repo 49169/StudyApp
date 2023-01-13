@@ -187,20 +187,38 @@ for(let i = 0; i<checkList.length; i++){
   addTask(checkList[i]);
 }
 //Pie Chart
-
+Chart.defaults.plugins.legend.display = false;
 var timeChart = new Chart("timeChart", {
-  type: 'pie',
+  type: 'doughnut',
   data: {
-    labels: ["Break", "Study"],
+    labels: [
+      'Study',
+      'Break',
+    ],
     datasets: [{
+      label:' Minutes',
+      data: [100,200],
       backgroundColor: [
-        "#2ecc71",
-        "#3498db",
-        
+        'rgb(255, 99, 132)',
+        'rgb(54, 162, 235)',
+        'rgb(255, 205, 86)'
       ],
-      data: [12, 19]
+      hoverOffset: 4
     }]
+  },
+  options:{
+    responsive:false,
+    plugins: {
+      legend: {
+         
+          labels: {
+              color: 'rgb(255, 99, 132)'
+          }
+      }
   }
+  },
+  
+
 });
 
 //video

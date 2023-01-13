@@ -235,6 +235,7 @@ input[type="range"]{
     position: fixed;
     bottom: 100px;
     cursor: pointer;
+    
 }
 
 .checklist {
@@ -264,7 +265,6 @@ input[type="range"]{
     margin-top: 10px;
 }
   
-  
 :checked + label {
 text-decoration: line-through;
 color: green;
@@ -290,13 +290,22 @@ input[type="text"] {
 }
 
 .statsDropdown{
+    
     background-color: azure;
     padding: 10px;
     border-radius: 8px;
     outline: 2px solid;
     font-family: sans-serif;
     position: fixed;
-    bottom: 100px;
-    right: 50px;
+   
     cursor: pointer;
+    bottom: 100px;
+    margin-left:200px;
+
+}
+
+#timeChart{
+    padding: 20px;
+    
+    
 }
