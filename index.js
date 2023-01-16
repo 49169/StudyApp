@@ -8,7 +8,6 @@ var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 var checkList = [];
 //localStorage.clear();
 if(localStorage.getItem('checkList')){
-
   checkList = JSON.parse(localStorage.getItem('checkList'));
 }
 

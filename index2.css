@@ -233,7 +233,9 @@ input[type="range"]{
     outline: 2px solid;
     font-family: sans-serif;
     position: fixed;
-    bottom: 100px;
+    right: 0px;
+    margin-right: 87px;
+    bottom: 150px;
     cursor: pointer;
     
 }
@@ -266,8 +268,8 @@ input[type="range"]{
 }
   
 :checked + label {
-text-decoration: line-through;
-color: green;
+    text-decoration: line-through;
+    color: green;
 }
 
 /* Style the close button */
@@ -300,12 +302,12 @@ input[type="text"] {
    
     cursor: pointer;
     bottom: 100px;
-    margin-left:200px;
-
+    right:0px;
+    margin-right: 90px;
+    margin-left:auto;
 }
 
 #timeChart{
     padding: 20px;
-    
     
 }
