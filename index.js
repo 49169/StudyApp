@@ -3,7 +3,7 @@ document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
 // Set the date we're counting down to
 var minutes = 8;
 var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
-
+var startCountDown = 0;
 
 var checkList = [];
 //localStorage.clear();
@@ -24,6 +24,10 @@ function timerRunner(){
   var now = new Date().getTime();
 
   // Find the distance between now and the count down date
+  var progress = 100 - ((distance)/(countDownDate-startCountDown) *100);
+  
+  timerBar.value = progress;
+
   distance = countDownDate - now;
 
   // Time calculations for days, hours, minutes and seconds
@@ -49,12 +53,14 @@ function timerRunner(){
 function updateTimer(event){
   timer.innerHTML = "";
   timer.style.display="block";
+  timerBar.style.display = "block";
   selectTime.style.display="none";
   document.getElementById("timer-buttons").style.display="block";
   //resetButton.style.display="block"
   
   minutes = event.currentTarget.time;
   countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
+  startCountDown = new Date().getTime();
 
   clearInterval(x);
   x = setInterval(timerRunner);
@@ -68,6 +74,7 @@ function pauseTimer(){
 function resumeTimer(){
   paused = false;
   countDownDate = new Date().getTime() + (distance);
+  //startCountDown = new Date().getTime();
   x = setInterval(timerRunner)
 }
 const audio = document.getElementById("youtube");
@@ -78,6 +85,7 @@ const timer = document.getElementById("timer-display");
 const resetButton = document.getElementById("reset");
 const stopButton = document.getElementById("stop");
 const selectTime = document.getElementById("select-time");
+const timerBar = document.getElementById("timer-bar");
 let isPlaying = false;
 
 var buttonList = ["8min", "12min", "16min", "20min", "24min"];
@@ -89,7 +97,7 @@ for(let i = 0; i <5; i++){
 }
 
 var ambientList = ["wind", "brown", "fire"];
-var ambientIds = ["jX6kn9_U8qk&t", "RqzGzwTY-6w&t", "6VB4bgiB0yA"];
+var ambientIds = ["jX6kn9_U8qk&t", "GhgL3y-oDAs", "6VB4bgiB0yA"];
 
 for(let i = 0; i<ambientList.length; i++){
   var button = document.getElementById(ambientList[i]+"-audio");
@@ -104,7 +112,7 @@ for(let i = 0; i<ambientList.length; i++){
   volumeSlider.audio = button.element;
   volumeSlider.addEventListener('input', (e) => {
     const value = e.target.value;
-    console.log(value);
+    //console.log(value);
     document.getElementById(e.currentTarget.audio).volume = value / 40;
   });
 
@@ -113,6 +121,7 @@ for(let i = 0; i<ambientList.length; i++){
 
 resetButton.onclick = function(){
   timer.style.display="none";
+  timerBar.style.display = "none";
   selectTime.style.display="block";
   document.getElementById("timer-buttons").style.display="none";
   //resetButton.style.display="none"
@@ -152,7 +161,10 @@ const taskList = document.getElementById('tasks');
 form.onsubmit = function (e) {
 	e.preventDefault();
 	const inputField = document.getElementById('task-input');
-	addTask(inputField.value, true);
+  if(inputField.value != ''){
+    addTask(inputField.value, true);
+  }
+	
 	form.reset();
 };
 
@@ -165,6 +177,8 @@ function addTask(description, addToStorage) {
 	newTask.setAttribute('type', 'checkbox');
 	newTask.setAttribute('name', description);
 	newTask.setAttribute('id', description);
+
+  newTask.addEventListener('click', updateTask);
 
 	taskLabel.setAttribute('for', description);
 	taskLabel.appendChild(taskDescriptionNode);
@@ -179,6 +193,21 @@ function addTask(description, addToStorage) {
   if(addToStorage){
     checkList.push(description);
     localStorage.setItem('checkList', JSON.stringify(checkList));
+  }
+}
+
+function updateTask(event){
+  //console.log(event.currentTarget.children[0].id);
+  if(event.currentTarget.checked){
+    const index = checkList.indexOf(event.currentTarget.id);
+    console.log(index);
+    if(index > -1){
+      checkList.splice(index, 1);
+    }
+    localStorage.setItem('checkList', JSON.stringify(checkList));
+  }
+  else{
+    console.log("not checked");
   }
 }
 

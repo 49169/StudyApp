@@ -311,3 +311,26 @@ input[type="text"] {
     padding: 20px;
     
 }
+
+input[type="submit"]{
+    appearance: none;
+    border-style: none;
+    background-color: cornflowerblue;
+    padding: 7px;
+    border-radius: 8px;
+    outline: 1px solid;
+}
+
+button{
+    cursor: pointer;
+}
+
+progress{
+    margin-top: 15px;
+    display: none;
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    width: 250px;
+}
