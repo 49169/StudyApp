@@ -6,9 +6,13 @@ var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 var startCountDown = 0;
 
 var checkList = [];
+var breakTime = 0;
 //localStorage.clear();
 if(localStorage.getItem('checkList')){
   checkList = JSON.parse(localStorage.getItem('checkList'));
+}
+if(localStorage.getItem('breakTime')){
+  breakTime = Number(localStorage.breakTime);
 }
 
 
@@ -46,8 +50,35 @@ function timerRunner(){
   // If the count down is finished, write some text
   if (distance < 0) {
     clearInterval(x);
-    document.getElementById("timer-display").innerHTML = "EXPIRED";
+    timerFinished();
+    //document.getElementById("timer-display").innerHTML = "EXPIRED";
   }
+}
+
+function timerFinished(){
+  var timeComplete = countDownDate-startCountDown;
+  var minutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
+  if(minutes <= 8){
+    breakTime+= 0.5;
+  }
+  else if (minutes <= 12){
+    breakTime += 1;
+  }
+  else if (minutes <= 16){
+    breakTime+= 1.5;
+  }
+  else if (minutes <= 20){
+    breakTime+= 2;
+  }
+  else if (minutes <= 24){
+    breakTime += 3;
+  }
+  localStorage.breakTime = breakTime;
+
+  timer.style.display="none";
+  timerBar.style.display = "none";
+  selectTime.style.display="block";
+  document.getElementById("timer-buttons").style.display="none";
 }
 
 function updateTimer(event){
@@ -94,6 +125,7 @@ for(let i = 0; i <5; i++){
   var button = document.getElementById(buttonList[i]);
   button.addEventListener("click", updateTimer);
   button.time = (8+i*4) + (1/60);
+  //button.time = 0.1;
 }
 
 var ambientList = ["wind", "brown", "fire"];
@@ -115,9 +147,7 @@ for(let i = 0; i<ambientList.length; i++){
     //console.log(value);
     document.getElementById(e.currentTarget.audio).volume = value / 40;
   });
-
 }
-
 
 resetButton.onclick = function(){
   timer.style.display="none";
@@ -127,7 +157,6 @@ resetButton.onclick = function(){
   //resetButton.style.display="none"
 }
 stopButton.onclick = function(){
- 
   if(paused == false){
     pauseTimer();
     stopButton.innerHTML = 'start';
@@ -135,10 +164,8 @@ stopButton.onclick = function(){
   else{
     resumeTimer();
     stopButton.innerHTML = 'stop';
-  }
-  
+  } 
 }
-
 
 function toggleAudio(event){
   console.log("toggle audio");
@@ -164,7 +191,6 @@ form.onsubmit = function (e) {
   if(inputField.value != ''){
     addTask(inputField.value, true);
   }
-	
 	form.reset();
 };
 
@@ -245,8 +271,6 @@ var timeChart = new Chart("timeChart", {
       }
   }
   },
-  
-
 });
 
 //video
