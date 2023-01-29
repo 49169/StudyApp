@@ -1,4 +1,4 @@
-document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
+document.cookie = 'cookie1=value1; SameSite=Lax';
 
 /* Source: http://yvoschaap.com */
 /* Build first in '06 */

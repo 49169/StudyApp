@@ -8,7 +8,7 @@ body{
     height: 100vh;
 }
 
-.container{
+.left-container{
     display: flex;
     flex-direction: column;
     justify-content:center;
@@ -145,7 +145,7 @@ body{
     
     width: 500px;
     margin-left: auto;
-    margin-top: 50px;
+    margin-top: 80px;
     margin-right: auto;
     object-fit: scale-down;
 }
@@ -334,3 +334,10 @@ progress{
     text-align: center;
     width: 250px;
 }
+
+details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }

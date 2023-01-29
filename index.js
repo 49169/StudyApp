@@ -1,4 +1,4 @@
-document.cookie = 'cross-site-cookie=bar; SameSite=Lax';
+document.cookie = 'cookie1=value1; SameSite=Lax';
 
 // Set the date we're counting down to
 var minutes = 8;
