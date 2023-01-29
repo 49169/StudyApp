@@ -65,8 +65,11 @@
             <div class="timer-buttons" id="timer-buttons">
                 <button id="stop" class="stop-button" >stop</button>
                 <button id="reset" class="reset-button" >reset</button>
-                
-            </div>   
+            </div>
+            <div id="breakTimer" class="closed">
+                <progress value="35" max="100" id="break-bar" class="closed"></progress>
+                <button id="toggleBreakTimer" class="stop-button" >Start</button>
+            </div>
             
         </div>
        
@@ -81,32 +84,34 @@
 
                 <div class >
                     <div class="img-container" >
-                        <img src="icons/break_icon.png" class="sound-icon"/>
+                        <img src="icons/break_icon.png" class="sound-icon" id="breakToggle"/>
                     </div>
                 </div>
             </div>
-            <div class="checkListDropdown">
+            <div id="toolContainer">
+                <div class="checkListDropdown">
                 
-                <div class="closed" id="checkListDropdown-content">
-                    <div class="checklist" id="tasks">
+                    <div class="closed" id="checkListDropdown-content">
+                        <div class="checklist" id="tasks">
+                        </div>
+                        <form id="task-form">
+                            <input id="task-input" name="task" type="text" placeholder="type your task" />
+                            <input type="submit" value="Add"></input>
+                        </form>
                     </div>
-                    <form id="task-form">
-                        <input id="task-input" name="task" type="text" placeholder="type your task" />
-                        <input type="submit" value="Add"></input>
-                    </form>
+                    <img id="toggleCheckListDropdown" src = "icons/checkList_icon.png"/>
+                    
                 </div>
-                <img id="toggleCheckListDropdown" src = "icons/checkList_icon.png"/>
-                
+                <div class="statsDropdown">
+                    
+                    <div class="closed" id="statsDropdown-content">
+                        <canvas id="timeChart"  width="200" height="200"></canvas>
+                    </div>
+                    
+                    <img id="toggleStatsDropdown" src = "icons/chart_icon.png"/>        
+                </div> 
             </div>
-            <div class="statsDropdown">
-                
-                <div class="closed" id="statsDropdown-content">
-                    <canvas id="timeChart"  width="200" height="200"></canvas>
-                </div>
-                
-                <img id="toggleStatsDropdown" src = "icons/chart_icon.png"/>
-                
-            </div> 
+            
                
 
         </div>

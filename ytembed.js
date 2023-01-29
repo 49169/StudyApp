@@ -31,7 +31,7 @@ var ytEmbed = {
 
         // temp hardcode our own key if not provided
         if (!this.cfg.key || this.cfg.key == 'your-youtube-developer-key') {
-                this.cfg.key = 'AIzaSyBK4cojsi0FJF1L7mR50LCua_55ip5lMC4';
+            this.cfg.key = 'AIzaSyBK4cojsi0FJF1L7mR50LCua_55ip5lMC4';
         }
 
         if (!this.cfg.block) {

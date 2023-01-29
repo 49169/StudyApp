@@ -5,6 +5,8 @@ var minutes = 8;
 var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 var startCountDown = 0;
 
+var studyMode = true;
+
 var checkList = [];
 var breakTime = 0;
 //localStorage.clear();
@@ -116,9 +118,22 @@ const resetButton = document.getElementById("reset");
 const stopButton = document.getElementById("stop");
 const selectTime = document.getElementById("select-time");
 const timerBar = document.getElementById("timer-bar");
+const breakBar = document.getElementById("break-bar");
 const toggleStat = document.getElementById("toggleStatsDropdown");
 const toggleList = document.getElementById("toggleCheckListDropdown");
+const breakToggle = document.getElementById("breakToggle");
+const breakTimer = document.getElementById("breakTimer");
 let isPlaying = false;
+
+breakToggle.addEventListener('click', toggleBreak);
+function toggleBreak(){
+  //if(studyMode){
+    //studyMode = false;
+    breakTimer.classList.toggle("closed");
+    selectTime.classList.toggle("closed");
+    breakBar.classList.toggle("closed");
+  //}
+}
 
 var buttonList = ["8min", "12min", "16min", "20min", "24min"];
 

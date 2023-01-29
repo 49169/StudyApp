@@ -20,6 +20,7 @@ body{
     display: block;
     height: 100%;
     width: 25%;
+    text-align: right;
 }
 
 .center-container{
@@ -205,7 +206,7 @@ input[type="range"]{
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
     
-    margin-right: 100px; 
+    margin-right: 80px; 
     display:inline-block;
 }
 
@@ -228,21 +229,19 @@ input[type="range"]{
 }
 
 .checkListDropdown{
+    display: inline-block;
     background-color: azure;
-    padding: 3px;
-    border-radius: 8px;
+    padding: 4px;
+    border-radius: 10px;
     outline: 2px solid;
     font-family: sans-serif;
     position: relative;
-    margin-right: 60px;
-    margin-left:auto;
-    
-    bottom: 150px;
     cursor: pointer;
-    display: inline-block;
+    top: 50%;
+    margin-bottom: 15px;
+    margin-left: auto;
     text-align: right;
-    float:right;
-    
+    box-shadow: 0px 2px 0px 2px black;
 }
 
 .checklist {
@@ -297,19 +296,18 @@ input[type="text"] {
 }
 
 .statsDropdown{
-    display:inline-block;
+    display: inline-block;
     background-color: azure;
-    padding: 3px;
-    border-radius: 8px;
+    padding: 4px;
+    border-radius: 10px;
     outline: 2px solid;
     font-family: sans-serif;
-    position: fixed;
-   
+    position: relative;
     cursor: pointer;
-    bottom: 100px;
-    right:0px;
-    margin-right: 90px;
-    margin-left:auto;
+    top: 60%;
+    
+    margin-left: auto;
+    text-align: right;
 }
 
 #timeChart{
@@ -330,7 +328,7 @@ button{
     cursor: pointer;
 }
 
-progress{
+#timer-bar{
     margin-top: 15px;
     display: none;
     position: relative;
@@ -338,6 +336,23 @@ progress{
     margin-right: auto;
     text-align: center;
     width: 250px;
+}
+
+#break-bar{
+    margin-top: 15px;
+    
+    position: relative;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    width: 250px;
+}
+#break-bar.closed{
+    display: none;
+}
+
+#toggleBreakTimer{
+    text-align: center;
 }
 
 details > summary {
@@ -384,4 +399,25 @@ details > summary::-webkit-details-marker {
 }
 #checkListDropdown-content.closed{
     display:none;
+}
+
+#toolContainer{
+    display:flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 80px;
+    right: 80px;
+}
+
+#breakTimer.closed{
+    display:none;
+}
+
+#breakTimer{
+    
+    text-align: center;
+}
+
+#select-time.closed{
+    display: none;
 }
