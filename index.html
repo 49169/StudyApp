@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Study App</title>
 
-    <link rel="stylesheet" href="index2.css" />
+    <link rel="stylesheet" href="index.css" />
 </head>
 
 <body>
@@ -44,7 +44,7 @@
                 <div id="youtubeDivSearch"></div>
                 <form class="search-bar" onsubmit="ytEmbed.init({'block':'youtubeDivSearch','key':'AIzaSyBmC4ChjBQQiuoB_TIw8O-0WYzJX5GUgIM','type':'search',
                     'q':document.getElementById('ytSearchField').value,'results': 5,'meta':true}); return false;">
-                    <input type="text" id="ytSearchField">  <input type="submit" value="  Search   ">
+                    <input type="text" id="ytSearchField">  <input type="submit" value="Search">
                 </form>
             </details>
             
@@ -73,32 +73,41 @@
 
         <div class="right-container">
             <div class="mode-container" id="mode-container">
-                <div class="audio-cube" >
+                <div class >
                     <div class="img-container" >
                         <img src="icons/study_icon.png" class="sound-icon"/>
                     </div>
                 </div>
 
-                <div class="audio-cube" >
+                <div class >
                     <div class="img-container" >
                         <img src="icons/break_icon.png" class="sound-icon"/>
                     </div>
                 </div>
             </div>
-            <details class="checkListDropdown">
-                <summary><img src = "icons/checkList_icon.png"/></summary>
-                <div class="checklist" id="tasks">
-                    
+            <div class="checkListDropdown">
+                
+                <div class="closed" id="checkListDropdown-content">
+                    <div class="checklist" id="tasks">
+                    </div>
+                    <form id="task-form">
+                        <input id="task-input" name="task" type="text" placeholder="type your task" />
+                        <input type="submit" value="Add"></input>
+                    </form>
                 </div>
-                <form id="task-form">
-                    <input id="task-input" name="task" type="text" placeholder="type your task" />
-                    <input type="submit" value="Add"></input>
-                </form>
-            </details>
-            <details class="statsDropdown">
-                <summary><img src = "icons/chart_icon.png"/></summary>
-                <canvas id="timeChart" width="200" height="200"></canvas>
-            </details>       
+                <img id="toggleCheckListDropdown" src = "icons/checkList_icon.png"/>
+                
+            </div>
+            <div class="statsDropdown">
+                
+                <div class="closed" id="statsDropdown-content">
+                    <canvas id="timeChart"  width="200" height="200"></canvas>
+                </div>
+                
+                <img id="toggleStatsDropdown" src = "icons/chart_icon.png"/>
+                
+            </div> 
+               
 
         </div>
         

@@ -15,7 +15,6 @@ if(localStorage.getItem('breakTime')){
   breakTime = Number(localStorage.breakTime);
 }
 
-
 var distance = 0;
 
 // Update the count down every 1 second
@@ -117,6 +116,8 @@ const resetButton = document.getElementById("reset");
 const stopButton = document.getElementById("stop");
 const selectTime = document.getElementById("select-time");
 const timerBar = document.getElementById("timer-bar");
+const toggleStat = document.getElementById("toggleStatsDropdown");
+const toggleList = document.getElementById("toggleCheckListDropdown");
 let isPlaying = false;
 
 var buttonList = ["8min", "12min", "16min", "20min", "24min"];
@@ -194,6 +195,7 @@ form.onsubmit = function (e) {
 	form.reset();
 };
 
+//Tasks
 function addTask(description, addToStorage) {
 	const taskContainer = document.createElement('div');
 	const newTask = document.createElement('input');
@@ -240,6 +242,16 @@ function updateTask(event){
 for(let i = 0; i<checkList.length; i++){
   addTask(checkList[i]);
 }
+function closeTask(){
+  document.getElementById("statsDropdown-content").classList.toggle("closed");
+};
+function closeList(){
+  document.getElementById("checkListDropdown-content").classList.toggle("closed");
+}
+
+toggleStat.addEventListener('click', closeTask);
+toggleList.addEventListener('click', closeList);
+
 //Pie Chart
 Chart.defaults.plugins.legend.display = false;
 var timeChart = new Chart("timeChart", {
