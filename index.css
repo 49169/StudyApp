@@ -92,7 +92,7 @@ body{
     text-align: center;
     padding: 5px 7px;
 
-    background-color:azure;
+  
 
     outline: 2px solid;
 }
@@ -177,10 +177,6 @@ input[type="range"]{
     border-radius: 4px;
 }
 
-.btn{
-
-}
-
 .audio-cube{
     margin-left:100px;
     margin-bottom: 10px;
@@ -188,15 +184,27 @@ input[type="range"]{
 }
 .img-container{
     display:inline-block;
-    background-color: aliceblue;
-    border-radius: 20px;
+    
+    border-radius: 15px;
     padding: 5px 6px;
     
-    border: 2px solid;
+    outline: 2px solid;
+
+    box-shadow: 0px 2px 0px 2px black;
+    transition: 0.2s;
+}
+
+.shadow{
+    box-shadow: 0px 2px 0px 2px black;
+    transition: 0.2s;
+}
+.shadow:hover{
+    transform: translateY(-2px);
 }
 
 .img-container:hover{
-    background-color: antiquewhite;
+    
+    transform: translateY(-2px);
 }
 
 .mode-container{
@@ -230,7 +238,7 @@ input[type="range"]{
 
 .checkListDropdown{
     display: inline-block;
-    background-color: azure;
+   
     padding: 4px;
     border-radius: 10px;
     outline: 2px solid;
@@ -297,7 +305,7 @@ input[type="text"] {
 
 .statsDropdown{
     display: inline-block;
-    background-color: azure;
+    
     padding: 4px;
     border-radius: 10px;
     outline: 2px solid;
@@ -348,6 +356,10 @@ button{
     width: 250px;
 }
 #break-bar.closed{
+    display: none;
+}
+
+#studyTimerContainer.closed{
     display: none;
 }
 
@@ -423,4 +435,8 @@ details > summary::-webkit-details-marker {
 
 #select-time.closed{
     display: none;
+}
+
+#breakToggle{
+    
 }

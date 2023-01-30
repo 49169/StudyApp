@@ -42,7 +42,7 @@
             <details class="ytSearch">
                 <summary>Music</summary>
                 <div id="youtubeDivSearch"></div>
-                <form class="search-bar" onsubmit="ytEmbed.init({'block':'youtubeDivSearch','key':'AIzaSyBmC4ChjBQQiuoB_TIw8O-0WYzJX5GUgIM','type':'search',
+                <form class="search-bar" autocomplete="off" onsubmit="ytEmbed.init({'block':'youtubeDivSearch','key':'AIzaSyBmC4ChjBQQiuoB_TIw8O-0WYzJX5GUgIM','type':'search',
                     'q':document.getElementById('ytSearchField').value,'results': 5,'meta':true}); return false;">
                     <input type="text" id="ytSearchField">  <input type="submit" value="Search">
                 </form>
@@ -52,23 +52,26 @@
 
         <div class="center-container">
             <img src="room2.png" class="room-img"/>
-
-            <div id="timer-display" class="timer"></div>
-            <progress value="35" max="100" class="timer-bar" id ="timer-bar"></progress>
-            <div class="select-time" id="select-time">
-                <button id="8min">8 min</button>
-                <button id="12min">12 min</button>
-                <button id="16min">16 min</button>
-                <button id="20min">20 min</button>
-                <button id="24min">24 min</button>
+            <div id="studyTimerContainer" class>
+                <div id="timer-display" class="timer"></div>
+                <progress value="35" max="100" class="timer-bar" id ="timer-bar"></progress>
+                <div class="select-time" id="select-time">
+                    <button id="8min" class="shadow">8 min</button>
+                    <button id="12min" class="shadow">12 min</button>
+                    <button id="16min" class="shadow">16 min</button>
+                    <button id="20min" class="shadow">20 min</button>
+                    <button id="24min" class="shadow">24 min</button>
+                </div>
+                <div class="timer-buttons" id="timer-buttons">
+                    <button id="stop" class="stop-button shadow" >stop</button>
+                    <button id="reset" class="reset-button shadow" >reset</button>
+                </div>
             </div>
-            <div class="timer-buttons" id="timer-buttons">
-                <button id="stop" class="stop-button" >stop</button>
-                <button id="reset" class="reset-button" >reset</button>
-            </div>
+            
             <div id="breakTimer" class="closed">
+                <div id="breakTimer-display"></div>
                 <progress value="35" max="100" id="break-bar" class="closed"></progress>
-                <button id="toggleBreakTimer" class="stop-button" >Start</button>
+                <button id="toggleBreakTimer" class="stop-button shadow" >Start</button>
             </div>
             <audio><source src="alarm.mp3" type="audio/mpeg"></audio>
             
@@ -77,25 +80,21 @@
 
         <div class="right-container">
             <div class="mode-container" id="mode-container">
-                <div class >
-                    <div class="img-container" >
-                        <img src="icons/study_icon.png" class="sound-icon"/>
-                    </div>
-                </div>
+                
 
                 <div class >
-                    <div class="img-container" >
-                        <img src="icons/break_icon.png" class="sound-icon" id="breakToggle"/>
+                    <div class="img-container" id="breakToggle">
+                        <img src="icons/break_icon.png" class="sound-icon" />
                     </div>
                 </div>
             </div>
             <div id="toolContainer">
-                <div class="checkListDropdown">
+                <div class="checkListDropdown img-container">
                 
                     <div class="closed" id="checkListDropdown-content">
                         <div class="checklist" id="tasks">
                         </div>
-                        <form id="task-form">
+                        <form id="task-form" autocomplete="off">
                             <input id="task-input" name="task" type="text" placeholder="type your task" />
                             <input type="submit" value="Add"></input>
                         </form>
@@ -103,7 +102,7 @@
                     <img id="toggleCheckListDropdown" src = "icons/checkList_icon.png"/>
                     
                 </div>
-                <div class="statsDropdown">
+                <div class="statsDropdown img-container">
                     
                     <div class="closed" id="statsDropdown-content">
                         <canvas id="timeChart"  width="200" height="200"></canvas>

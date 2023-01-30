@@ -6,9 +6,16 @@ var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
 var startCountDown = 0;
 
 var studyMode = true;
+var totalStudyTime = 0;
 
 var checkList = [];
 var breakTime = 0;
+var breakTimeCountDownDate = new Date().getTime();
+var breakTimeStartCountDown = 0;
+var breakTimeDistance = 0;
+var breakTimerObject = null;
+var breakPaused = true;
+
 //localStorage.clear();
 if(localStorage.getItem('checkList')){
   checkList = JSON.parse(localStorage.getItem('checkList'));
@@ -16,12 +23,16 @@ if(localStorage.getItem('checkList')){
 if(localStorage.getItem('breakTime')){
   breakTime = Number(localStorage.breakTime);
 }
+if(localStorage.getItem('totalStudyTime')){
+  
+  totalStudyTime = Number(localStorage.totalStudyTime);
+}
+else{
+  localStorage.totalStudyTime = 0;
+}
 
 var distance = 0;
-
-// Update the count down every 1 second
 var x = null;
-
 var paused = false;
 
 function timerRunner(){
@@ -56,11 +67,31 @@ function timerRunner(){
   }
 }
 
+function breakTimerRunner(){
+  var now = new Date().getTime();
+  var progress = 100 - ((breakTimeDistance)/(breakTimeCountDownDate-breakTimeStartCountDown)*100);
+  breakTimeDistance = breakTimeCountDownDate - now;
+
+  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  if(seconds<10){
+    breakTimerDisplay.innerHTML = minutes + ":0" + seconds + " ";
+  }
+  else{
+    breakTimerDisplay.innerHTML = minutes + ":" + seconds + " ";
+  }
+}
+
 function timerFinished(){
   var alarm = new Audio('alarm.mp3');
   alarm.play(); 
   var timeComplete = countDownDate-startCountDown;
   var minutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
+  console.log(minutes);
+  totalStudyTime += minutes;
+  localStorage.totalStudyTime = totalStudyTime;
+
   if(minutes <= 8){
     breakTime+= 0.5;
   }
@@ -123,24 +154,52 @@ const timerBar = document.getElementById("timer-bar");
 const breakBar = document.getElementById("break-bar");
 const toggleStat = document.getElementById("toggleStatsDropdown");
 const toggleList = document.getElementById("toggleCheckListDropdown");
+
+const breakTimerDisplay = document.getElementById("breakTimer-display");
 const breakToggle = document.getElementById("breakToggle");
 const breakTimer = document.getElementById("breakTimer");
 const breakTimerToggle = document.getElementById("toggleBreakTimer");
 let isPlaying = false;
 
 breakTimerToggle.addEventListener('click', toggleBreakTimer);
-function toggleBreakTimer(){
 
+function toggleBreakTimer(){
+  if(breakPaused){
+    breakTimeCountDownDate = new Date().getTime() + ((localStorage.breakTime * 60 ) * 1000);
+    breakTimeStartCountDown = new Date().getTime();
+    console.log(localStorage.breakTime);
+    clearInterval(breakTimerObject);
+    breakTimerObject = setInterval(breakTimerRunner);
+
+    breakTimerToggle.innerHTML = 'Pause';
+    breakPaused = false;
+  }
+  else{
+    localStorage.breakTime = Math.floor((breakTimeDistance % (1000 * 60 * 60)) / (1000 * 60));
+    clearInterval(breakTimerObject);
+    breakTimerToggle.innerHTML = 'Start';
+    breakPaused = true;
+  }
+  
 }
 
 breakToggle.addEventListener('click', toggleBreak);
-function toggleBreak(){
-  //if(studyMode){
-    //studyMode = false;
+function toggleBreak(event){
+  if(studyMode){
+    studyMode = false;
     breakTimer.classList.toggle("closed");
-    selectTime.classList.toggle("closed");
+    document.getElementById("studyTimerContainer").classList.toggle("closed");
     breakBar.classList.toggle("closed");
-  //}
+    event.currentTarget.style.backgroundColor = "#6495ED";
+    
+  }
+  else{
+    studyMode = true;
+    breakTimer.classList.toggle("closed");
+    document.getElementById("studyTimerContainer").classList.toggle("closed");
+    breakBar.classList.toggle("closed");
+    event.currentTarget.style.backgroundColor = "#FFFFFF";
+  }
 }
 
 var buttonList = ["8min", "12min", "16min", "20min", "24min"];
@@ -148,8 +207,8 @@ var buttonList = ["8min", "12min", "16min", "20min", "24min"];
 for(let i = 0; i <5; i++){
   var button = document.getElementById(buttonList[i]);
   button.addEventListener("click", updateTimer);
-  button.time = (8+i*4) + (1/60);
-  //button.time = 0.1;
+  //button.time = (8+i*4) + (1/60);
+  button.time = 0.1;
 }
 
 var ambientList = ["wind", "brown", "fire"];
@@ -197,12 +256,12 @@ function toggleAudio(event){
   if (event.currentTarget.isPlaying) {
 		audio.pause()
 		event.currentTarget.isPlaying = false
-    event.currentTarget.style.backgroundColor = "#f3f3f3";
+    event.currentTarget.style.backgroundColor = "#FFFFFF";
 	} 
   else {
 		audio.play()
 		event.currentTarget.isPlaying = true
-    event.currentTarget.style.backgroundColor = "#4CAF50";
+    event.currentTarget.style.backgroundColor = "#6495ED";
 	}
 }
 
@@ -286,7 +345,7 @@ var timeChart = new Chart("timeChart", {
     ],
     datasets: [{
       label:' Minutes',
-      data: [100,200],
+      data: [localStorage.totalStudyTime,0],
       backgroundColor: [
         'rgb(255, 99, 132)',
         'rgb(54, 162, 235)',
@@ -299,7 +358,6 @@ var timeChart = new Chart("timeChart", {
     responsive:false,
     plugins: {
       legend: {
-         
           labels: {
               color: 'rgb(255, 99, 132)'
           }
