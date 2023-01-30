@@ -352,7 +352,8 @@ button{
 }
 
 #toggleBreakTimer{
-    text-align: center;
+    margin-top: 20px;
+    display: inline-block;
 }
 
 details > summary {
@@ -414,8 +415,10 @@ details > summary::-webkit-details-marker {
 }
 
 #breakTimer{
-    
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #select-time.closed{

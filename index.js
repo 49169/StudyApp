@@ -57,6 +57,8 @@ function timerRunner(){
 }
 
 function timerFinished(){
+  var alarm = new Audio('alarm.mp3');
+  alarm.play(); 
   var timeComplete = countDownDate-startCountDown;
   var minutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
   if(minutes <= 8){
@@ -123,7 +125,13 @@ const toggleStat = document.getElementById("toggleStatsDropdown");
 const toggleList = document.getElementById("toggleCheckListDropdown");
 const breakToggle = document.getElementById("breakToggle");
 const breakTimer = document.getElementById("breakTimer");
+const breakTimerToggle = document.getElementById("toggleBreakTimer");
 let isPlaying = false;
+
+breakTimerToggle.addEventListener('click', toggleBreakTimer);
+function toggleBreakTimer(){
+
+}
 
 breakToggle.addEventListener('click', toggleBreak);
 function toggleBreak(){
