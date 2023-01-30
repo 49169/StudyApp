@@ -39,14 +39,17 @@
                 </div>
                 
             </div>
-            <details class="ytSearch">
-                <summary>Music</summary>
-                <div id="youtubeDivSearch"></div>
-                <form class="search-bar" autocomplete="off" onsubmit="ytEmbed.init({'block':'youtubeDivSearch','key':'AIzaSyBmC4ChjBQQiuoB_TIw8O-0WYzJX5GUgIM','type':'search',
+            <div class="ytSearch img-container">
+                <div class="closed" id="musicPlayer">
+                    <div id="youtubeDivSearch"></div>
+                    <form class="search-bar" autocomplete="off" onsubmit="ytEmbed.init({'block':'youtubeDivSearch','key':'AIzaSyBmC4ChjBQQiuoB_TIw8O-0WYzJX5GUgIM','type':'search',
                     'q':document.getElementById('ytSearchField').value,'results': 5,'meta':true}); return false;">
-                    <input type="text" id="ytSearchField">  <input type="submit" value="Search">
-                </form>
-            </details>
+                        <input type="text" id="ytSearchField">  <input type="submit" value="Search">
+                    </form>
+                    
+                </div>
+                <img src="icons/music_icon.png" id="toggleMusic">
+            </div>
             
         </div>
 

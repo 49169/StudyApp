@@ -159,7 +159,16 @@ const breakTimerDisplay = document.getElementById("breakTimer-display");
 const breakToggle = document.getElementById("breakToggle");
 const breakTimer = document.getElementById("breakTimer");
 const breakTimerToggle = document.getElementById("toggleBreakTimer");
+
+const musicButton = document.getElementById("toggleMusic");
+const musicMenu = document.getElementById("musicPlayer");
+
 let isPlaying = false;
+
+musicButton.addEventListener('click', toggleMusicMenu);
+function toggleMusicMenu(){
+  musicPlayer.classList.toggle("closed");
+}
 
 breakTimerToggle.addEventListener('click', toggleBreakTimer);
 

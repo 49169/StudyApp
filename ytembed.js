@@ -74,10 +74,10 @@ var ytEmbed = {
                     this.cfg.thumbnail = 200;
                 }
                 if (!this.cfg.height) {
-                    this.cfg.height = 390;
+                    this.cfg.height = 200;
                 }
                 if (!this.cfg.width) {
-                    this.cfg.width = 640;
+                    this.cfg.width = 350;
                 }
 
 
