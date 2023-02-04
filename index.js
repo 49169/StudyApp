@@ -1,14 +1,36 @@
 document.cookie = 'cookie1=value1; SameSite=Lax';
 
-// Set the date we're counting down to
-var minutes = 8;
-var countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
+//Study timer
+var studyMinutes = 8;
+var countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
 var startCountDown = 0;
 
+var distance = 0;
+var studyTimerObject = null;
+var paused = false;
 var studyMode = true;
+//Total minutes studied per day
 var totalStudyTime = 0;
 
+let currentDate = new Date();
+let day = currentDate.getDay();
+let month = currentDate.getMonth();
+let year = currentDate.getFullYear();
+
+let lastTimeLogged = day + ',' + month +','+year;
+
+localStorage.lastTimeLogged = lastTimeLogged;
+var timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
+
+let key = day+6 + ',' + month +','+year;
+timeStudiedEachDay.set(key, 50);
+
+localStorage.timeStudiedEachDay = JSON.stringify(Array.from(timeStudiedEachDay.entries()));
+
+//Checklist of tasks 
 var checkList = [];
+
+//Amount of break time
 var breakTime = 0;
 var breakTimeCountDownDate = new Date().getTime();
 var breakTimeStartCountDown = 0;
@@ -16,54 +38,86 @@ var breakTimeDistance = 0;
 var breakTimerObject = null;
 var breakPaused = true;
 
+//Fetch stored data
 //localStorage.clear();
-if(localStorage.getItem('checkList')){
-  checkList = JSON.parse(localStorage.getItem('checkList'));
-}
-if(localStorage.getItem('breakTime')){
-  breakTime = Number(localStorage.breakTime);
-}
-if(localStorage.getItem('totalStudyTime')){
+
+fetchAllData();
+
+class Timer{
+  constructor(time){
+    this.time = time;
+  }
+  createTimer(){
+    this.now = new Date().getTime();
+
+    this.progress = 100 - ((distance)/(countDownDate-startCountDown) *100);
+    timerBar.value = progress;
+
+    this.timeLeft = countDownDate - now;
   
-  totalStudyTime = Number(localStorage.totalStudyTime);
-}
-else{
-  localStorage.totalStudyTime = 0;
+    var studyMinutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    if(seconds<10){
+      timer.innerHTML = studyMinutes + ":0" + seconds + " ";
+    }
+    else{
+      timer.innerHTML = studyMinutes + ":" + seconds + " ";
+    }
+    if (this.timeLeft < 0) {
+      clearInterval(this.timer);
+      this.timerFinished();
+    }
+  }
+  startTimer(){
+    clearInterval(this.timer);
+    this.timer = setInterval(this.createTimer);
+  }
+  pauseTimer(){
+    this.paused = true;
+    clearInterval(this.timer);
+  }
+  timerFinished(){
+
+  }
 }
 
-var distance = 0;
-var x = null;
-var paused = false;
+function fetchAllData(){
+  if(localStorage.getItem('checkList')){
+    checkList = JSON.parse(localStorage.getItem('checkList'));
+  }
+  if(localStorage.getItem('breakTime')){
+    breakTime = Number(localStorage.breakTime);
+  }
+  if(localStorage.getItem('totalStudyTime')){
+    
+    totalStudyTime = Number(localStorage.totalStudyTime);
+  }
+  else{
+    localStorage.totalStudyTime = 0;
+  }
+}
 
 function timerRunner(){
-  // Get today's date and time
   var now = new Date().getTime();
 
-  // Find the distance between now and the count down date
   var progress = 100 - ((distance)/(countDownDate-startCountDown) *100);
-  
   timerBar.value = progress;
 
   distance = countDownDate - now;
-
-  // Time calculations for days, hours, minutes and seconds
  
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var studyMinutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-  // Display the result in the element with id="demo"
   if(seconds<10){
-    timer.innerHTML = minutes + ":0" + seconds + " ";
+    timer.innerHTML = studyMinutes + ":0" + seconds + " ";
   }
   else{
-    timer.innerHTML = minutes + ":" + seconds + " ";
+    timer.innerHTML = studyMinutes + ":" + seconds + " ";
   }
-
-  // If the count down is finished, write some text
   if (distance < 0) {
-    clearInterval(x);
+    clearInterval(studyTimerObject);
     timerFinished();
-    //document.getElementById("timer-display").innerHTML = "EXPIRED";
   }
 }
 
@@ -72,14 +126,14 @@ function breakTimerRunner(){
   var progress = 100 - ((breakTimeDistance)/(breakTimeCountDownDate-breakTimeStartCountDown)*100);
   breakTimeDistance = breakTimeCountDownDate - now;
 
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  var studyMinutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
   var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
   if(seconds<10){
-    breakTimerDisplay.innerHTML = minutes + ":0" + seconds + " ";
+    breakTimerDisplay.innerHTML = studyMinutes + ":0" + seconds + " ";
   }
   else{
-    breakTimerDisplay.innerHTML = minutes + ":" + seconds + " ";
+    breakTimerDisplay.innerHTML = studyMinutes + ":" + seconds + " ";
   }
 }
 
@@ -87,24 +141,24 @@ function timerFinished(){
   var alarm = new Audio('alarm.mp3');
   alarm.play(); 
   var timeComplete = countDownDate-startCountDown;
-  var minutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
-  console.log(minutes);
-  totalStudyTime += minutes;
+  var studyMinutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
+  console.log(studyMinutes);
+  totalStudyTime += studyMinutes;
   localStorage.totalStudyTime = totalStudyTime;
 
-  if(minutes <= 8){
+  if(studyMinutes <= 8){
     breakTime+= 0.5;
   }
-  else if (minutes <= 12){
+  else if (studyMinutes <= 12){
     breakTime += 1;
   }
-  else if (minutes <= 16){
+  else if (studyMinutes <= 16){
     breakTime+= 1.5;
   }
-  else if (minutes <= 20){
+  else if (studyMinutes <= 20){
     breakTime+= 2;
   }
-  else if (minutes <= 24){
+  else if (studyMinutes <= 24){
     breakTime += 3;
   }
   localStorage.breakTime = breakTime;
@@ -123,25 +177,26 @@ function updateTimer(event){
   document.getElementById("timer-buttons").style.display="block";
   //resetButton.style.display="block"
   
-  minutes = event.currentTarget.time;
-  countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
+  studyMinutes = event.currentTarget.time;
+  countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
   startCountDown = new Date().getTime();
 
-  clearInterval(x);
-  x = setInterval(timerRunner);
+  clearInterval(studyTimerObject);
+  studyTimerObject = setInterval(timerRunner);
 }
 
 function pauseTimer(){
   paused = true;
-  clearInterval(x);
+  clearInterval(studyTimerObject);
 }
 
 function resumeTimer(){
   paused = false;
   countDownDate = new Date().getTime() + (distance);
   //startCountDown = new Date().getTime();
-  x = setInterval(timerRunner)
+  studyTimerObject = setInterval(timerRunner)
 }
+
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
 const player = document.getElementById("player");
@@ -189,7 +244,6 @@ function toggleBreakTimer(){
     breakTimerToggle.innerHTML = 'Start';
     breakPaused = true;
   }
-  
 }
 
 breakToggle.addEventListener('click', toggleBreak);
@@ -216,8 +270,8 @@ var buttonList = ["8min", "12min", "16min", "20min", "24min"];
 for(let i = 0; i <5; i++){
   var button = document.getElementById(buttonList[i]);
   button.addEventListener("click", updateTimer);
-  //button.time = (8+i*4) + (1/60);
-  button.time = 0.1;
+  button.time = (8+i*4) + (1/60);
+  //button.time = 0.1;
 }
 
 var ambientList = ["wind", "brown", "fire"];
@@ -231,7 +285,6 @@ for(let i = 0; i<ambientList.length; i++){
   button.isPlaying = false;
   audioSetup(button.audio, ambientList[i]+"-yt");
   
-
   var volumeSlider = document.getElementById(ambientList[i]+"-slider");
   volumeSlider.audio = button.element;
   volumeSlider.addEventListener('input', (e) => {
@@ -280,18 +333,20 @@ const taskList = document.getElementById('tasks');
 form.onsubmit = function (e) {
 	e.preventDefault();
 	const inputField = document.getElementById('task-input');
-  if(inputField.value != ''){
-    addTask(inputField.value, true);
+  const datefield = document.getElementById('date-input');
+  console.log(datefield.value);
+  if(inputField.value != '' && datefield.value != ''){
+    addTask(inputField.value, datefield.value, true);
   }
 	form.reset();
 };
 
 //Tasks
-function addTask(description, addToStorage) {
+function addTask(description, date, addToStorage) {
 	const taskContainer = document.createElement('div');
 	const newTask = document.createElement('input');
 	const taskLabel = document.createElement('label');
-	const taskDescriptionNode = document.createTextNode(description);
+	const taskDescriptionNode = document.createTextNode(description + " -- due date: "+ date);
 
 	newTask.setAttribute('type', 'checkbox');
 	newTask.setAttribute('name', description);
@@ -344,17 +399,18 @@ toggleStat.addEventListener('click', closeTask);
 toggleList.addEventListener('click', closeList);
 
 //Pie Chart
+
+let values = Array.from(timeStudiedEachDay.values());
+let labels = Array.from(timeStudiedEachDay.keys());
+console.log(values);
 Chart.defaults.plugins.legend.display = false;
 var timeChart = new Chart("timeChart", {
-  type: 'doughnut',
+  type: 'bar',
   data: {
-    labels: [
-      'Study',
-      'Break',
-    ],
+    labels: labels,
     datasets: [{
       label:' Minutes',
-      data: [localStorage.totalStudyTime,0],
+      data: values,
       backgroundColor: [
         'rgb(255, 99, 132)',
         'rgb(54, 162, 235)',

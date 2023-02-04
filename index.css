@@ -170,14 +170,17 @@ input[type="range"]{
     width: 15px;
     height:30px;
     margin-top: -7px;
-    border-radius: 4px;
-    background-color: #5cd5eb;
+    border-radius: 10px;
+    background-color:white;
+    outline: 2px solid;
+    z-index: 100;
 }
 .input-range::-webkit-slider-runnable-track{
     height: 15px;
-    background-color: #afafaf;
-    outline: 2px black;
-    border-radius: 4px;
+    background-color: cornflowerblue;
+    border-radius: 10px;
+    
+    z-index: 0;
 }
 
 .audio-cube{
@@ -405,7 +408,7 @@ details > summary::-webkit-details-marker {
     position: absolute;
     bottom: 70px;
     right: 0px;
-    width: 200px;
+    width: 310px;
     border: 1px solid #e9e9e9;
     border-radius: 8px;
     background-color: white;

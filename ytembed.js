@@ -508,7 +508,7 @@ var ytEmbed = {
      * Play video (static)
      */
     playVideo: function(data) {
-        console.log(data);
+        //console.log(data);
         if (data.cfg.parent) {
             var player = document.getElementById(data.cfg.parent + "Player");
         } else {
@@ -571,5 +571,3 @@ var ytPlayerParams = {
         'onStateChange': ytEmbed.onPlayerStateChange
     }
 };
-
--->
