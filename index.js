@@ -1,62 +1,73 @@
 document.cookie = 'cookie1=value1; SameSite=Lax';
 
-//Study timer
-var studyMinutes = 8;
-var countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
-var startCountDown = 0;
+var studyTimer, checkList, breakTime, totalStudyTime, timeStudiedEachDay, studyMinutes, countDownDate, startCountDown, distance, progress;
 
-var distance = 0;
-var studyTimerObject = null;
-var paused = false;
-var studyMode = true;
-//Total minutes studied per day
-var totalStudyTime = 0;
 
-let currentDate = new Date();
-let day = currentDate.getDay();
-let month = currentDate.getMonth();
-let year = currentDate.getFullYear();
+function init(){
+  //Study timer
+  var studyMinutes = 8;
+  var countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
+  var startCountDown = 0;
 
-let lastTimeLogged = day + ',' + month +','+year;
+  distance = 0;
+  var studyTimerObject = null;
+  var paused = false;
+  var studyMode = true;
 
-localStorage.lastTimeLogged = lastTimeLogged;
-var timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
+  studyTimer = new Timer();
 
-let key = day+6 + ',' + month +','+year;
-timeStudiedEachDay.set(key, 50);
+  //Total minutes studied per day
+  totalStudyTime = 0;
 
-localStorage.timeStudiedEachDay = JSON.stringify(Array.from(timeStudiedEachDay.entries()));
+  let currentDate = new Date();
+  let day = currentDate.getDay();
+  let month = currentDate.getMonth();
+  let year = currentDate.getFullYear();
 
-//Checklist of tasks 
-var checkList = [];
+  let lastTimeLogged = day + ',' + month +','+year;
 
-//Amount of break time
-var breakTime = 0;
-var breakTimeCountDownDate = new Date().getTime();
-var breakTimeStartCountDown = 0;
-var breakTimeDistance = 0;
-var breakTimerObject = null;
-var breakPaused = true;
+  localStorage.lastTimeLogged = lastTimeLogged;
+  timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
+
+  let key = day+6 + ',' + month +','+year;
+  timeStudiedEachDay.set(key, 50);
+
+  localStorage.timeStudiedEachDay = JSON.stringify(Array.from(timeStudiedEachDay.entries()));
+
+  //Checklist of tasks 
+  checkList = [];
+
+  //Amount of break time
+  breakTime = 0;
+  var breakTimeCountDownDate = new Date().getTime();
+  var breakTimeStartCountDown = 0;
+  var breakTimeDistance = 0;
+  var breakTimerObject = null;
+  var breakPaused = true;
+}
+
 
 //Fetch stored data
 //localStorage.clear();
 
-fetchAllData();
 
 class Timer{
   constructor(time){
     this.time = time;
+    
   }
-  createTimer(){
-    this.now = new Date().getTime();
+  createTimer(parent){
+    parent.now = new Date().getTime();
+    console.log(parent.distance);
+    parent.progress = 100 - ((parent.distance)/(parent.countDownDate-parent.startCountDown) *100);
+    timerBar.value = parent.progress;
 
-    this.progress = 100 - ((distance)/(countDownDate-startCountDown) *100);
-    timerBar.value = progress;
+    parent.distance = parent.countDownDate - parent.now;
 
-    this.timeLeft = countDownDate - now;
+    parent.timeLeft = parent.countDownDate - parent.now;
   
-    var studyMinutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    var studyMinutes = Math.floor((parent.distance % (1000 * 60 * 60)) / (1000 * 60));
+    var seconds = Math.floor((parent.distance % (1000 * 60)) / 1000);
 
     if(seconds<10){
       timer.innerHTML = studyMinutes + ":0" + seconds + " ";
@@ -64,23 +75,30 @@ class Timer{
     else{
       timer.innerHTML = studyMinutes + ":" + seconds + " ";
     }
-    if (this.timeLeft < 0) {
-      clearInterval(this.timer);
-      this.timerFinished();
+    if (timer.timeLeft < 0) {
+      //clearInterval(parent);
+      parent.timerFinished();
     }
   }
-  startTimer(){
+  startTimer(minutes){
+    this.distance = 0;
+    this.countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
+    this.startCountDown = new Date().getTime ();
+    //console.log(100 - ((this.distance)/(this.countDownDate-this.startCountDown) *100));
     clearInterval(this.timer);
-    this.timer = setInterval(this.createTimer);
+    this.timer = setInterval(this.createTimer(this));
   }
   pauseTimer(){
     this.paused = true;
     clearInterval(this.timer);
   }
   timerFinished(){
-
+    console.log("finished");
   }
 }
+
+init();
+fetchAllData();
 
 function fetchAllData(){
   if(localStorage.getItem('checkList')){
@@ -181,8 +199,10 @@ function updateTimer(event){
   countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
   startCountDown = new Date().getTime();
 
-  clearInterval(studyTimerObject);
-  studyTimerObject = setInterval(timerRunner);
+  //clearInterval(studyTimerObject);
+  //studyTimerObject = setInterval(timerRunner);
+  //studyTimer.createTimer();
+  studyTimer.startTimer(studyMinutes);
 }
 
 function pauseTimer(){
