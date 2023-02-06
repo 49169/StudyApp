@@ -1,20 +1,30 @@
 document.cookie = 'cookie1=value1; SameSite=Lax';
 
-var studyTimer, checkList, breakTime, totalStudyTime, timeStudiedEachDay, studyMinutes, countDownDate, startCountDown, distance, progress;
-
+var 
+studyTimer, 
+breakTimer, 
+studyMode, 
+checkList, 
+breakTime, 
+totalStudyTime, 
+timeStudiedEachDay, 
+studyMinutes, 
+countDownDate, 
+startCountDown, 
+distance, 
+progress, 
+breakPaused;
 
 function init(){
   //Study timer
   var studyMinutes = 8;
-  var countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
-  var startCountDown = 0;
 
   distance = 0;
-  var studyTimerObject = null;
-  var paused = false;
-  var studyMode = true;
+
+  studyMode = true;
 
   studyTimer = new Timer();
+  breakTimer = new Timer();
 
   //Total minutes studied per day
   totalStudyTime = 0;
@@ -27,8 +37,8 @@ function init(){
   let lastTimeLogged = day + ',' + month +','+year;
 
   localStorage.lastTimeLogged = lastTimeLogged;
-  timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
-
+  //timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
+  timeStudiedEachDay = new Map();
   let key = day+6 + ',' + month +','+year;
   timeStudiedEachDay.set(key, 50);
 
@@ -38,31 +48,32 @@ function init(){
   checkList = [];
 
   //Amount of break time
+  var breakMinutes = Math.floor((localStorage.breakTime % (1000 * 60 * 60)) / (1000 * 60));
+  var breakSeconds = Math.floor((localStorage.breakTime % (1000 * 60)) / 1000);
+  if(breakSeconds<10){
+    breakSeconds = "0"+breakSeconds;
+  }
+  document.getElementById("breakTimer-display").innerHTML = breakMinutes+": "+breakSeconds;
   breakTime = 0;
-  var breakTimeCountDownDate = new Date().getTime();
-  var breakTimeStartCountDown = 0;
-  var breakTimeDistance = 0;
-  var breakTimerObject = null;
-  var breakPaused = true;
+  
 }
-
 
 //Fetch stored data
 //localStorage.clear();
 
-
 class Timer{
   constructor(time){
     this.time = time;
-    
+    this.paused = true;
   }
-  createTimer(parent){
+  runTimer(parent, html, bar){
     parent.now = new Date().getTime();
-    console.log(parent.distance);
-    parent.progress = 100 - ((parent.distance)/(parent.countDownDate-parent.startCountDown) *100);
-    timerBar.value = parent.progress;
-
     parent.distance = parent.countDownDate - parent.now;
+
+    console.log(parent.distance);
+    
+    parent.progress = 100 - ((parent.distance)/(parent.countDownDate-parent.startCountDown) *100);
+    bar.value = parent.progress;
 
     parent.timeLeft = parent.countDownDate - parent.now;
   
@@ -70,35 +81,81 @@ class Timer{
     var seconds = Math.floor((parent.distance % (1000 * 60)) / 1000);
 
     if(seconds<10){
-      timer.innerHTML = studyMinutes + ":0" + seconds + " ";
+      html.innerHTML = studyMinutes + ":0" + seconds + " ";
     }
     else{
-      timer.innerHTML = studyMinutes + ":" + seconds + " ";
+      html.innerHTML = studyMinutes + ":" + seconds + " ";
     }
-    if (timer.timeLeft < 0) {
-      //clearInterval(parent);
+    if (parent.timeLeft <= 0) {
+      clearInterval(parent.timer);
       parent.timerFinished();
     }
   }
-  startTimer(minutes){
+  startTimer(minutes, html, bar, seconds = 0){
+    console.log("start timer");
+    this.paused = false;
+
     this.distance = 0;
-    this.countDownDate = new Date().getTime() + ((minutes * 60 ) * 1000);
+    this.countDownDate = new Date().getTime() + (((minutes * 60 )-1) * 1000);
+    this.countDownDate += (seconds*1000);
     this.startCountDown = new Date().getTime ();
-    //console.log(100 - ((this.distance)/(this.countDownDate-this.startCountDown) *100));
+
     clearInterval(this.timer);
-    this.timer = setInterval(this.createTimer(this));
+
+    this.runTimer(this, html, bar);
+    this.countDownDate += (1) * 1000; //Have to do this because of delay
+    this.timer = setInterval(()=> this.runTimer(this, html, bar),1000);
   }
   pauseTimer(){
     this.paused = true;
     clearInterval(this.timer);
   }
+  resumeTimer(html, bar){
+    this.paused = false;
+    this.countDownDate = new Date().getTime() + (this.distance);
+    console.log(this.countDownDate);
+    this.timer = setInterval(()=> this.runTimer(this, html, bar),1000);
+  }
+  resetTimer(){
+    this.paused = true;
+    clearInterval(this.timer);
+  }
   timerFinished(){
     console.log("finished");
+    var alarm = new Audio('alarm.mp3');
+    alarm.play(); 
+    var timeComplete = countDownDate-startCountDown;
+    var studyMinutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
+
+    totalStudyTime += studyMinutes;
+    localStorage.totalStudyTime = totalStudyTime;
+
+    if(studyMinutes <= 8){
+      breakTime+= 0.5;
+    }
+    else if (studyMinutes <= 12){
+      breakTime += 1;
+    }
+    else if (studyMinutes <= 16){
+      breakTime+= 1.5;
+    }
+    else if (studyMinutes <= 20){
+      breakTime+= 2;
+    }
+    else if (studyMinutes <= 24){
+      breakTime += 3;
+    }
+    localStorage.breakTime = breakTime;
+
+    timer.style.display="none";
+    timerBar.style.display = "none";
+    selectTime.style.display="block";
+    document.getElementById("timer-buttons").style.display="none";
   }
 }
 
-init();
 fetchAllData();
+init();
 
 function fetchAllData(){
   if(localStorage.getItem('checkList')){
@@ -106,85 +163,20 @@ function fetchAllData(){
   }
   if(localStorage.getItem('breakTime')){
     breakTime = Number(localStorage.breakTime);
+    localStorage.breakTime = 10*60*1000;
+  }
+  else{
+    localStorage.breakTime = 10*60*1000;
   }
   if(localStorage.getItem('totalStudyTime')){
-    
     totalStudyTime = Number(localStorage.totalStudyTime);
   }
   else{
     localStorage.totalStudyTime = 0;
   }
-}
-
-function timerRunner(){
-  var now = new Date().getTime();
-
-  var progress = 100 - ((distance)/(countDownDate-startCountDown) *100);
-  timerBar.value = progress;
-
-  distance = countDownDate - now;
- 
-  var studyMinutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-  if(seconds<10){
-    timer.innerHTML = studyMinutes + ":0" + seconds + " ";
+  if(!localStorage.getItem('timeStudiedEachDay')){
+    localStorage.timeStudiedEachDay = "";
   }
-  else{
-    timer.innerHTML = studyMinutes + ":" + seconds + " ";
-  }
-  if (distance < 0) {
-    clearInterval(studyTimerObject);
-    timerFinished();
-  }
-}
-
-function breakTimerRunner(){
-  var now = new Date().getTime();
-  var progress = 100 - ((breakTimeDistance)/(breakTimeCountDownDate-breakTimeStartCountDown)*100);
-  breakTimeDistance = breakTimeCountDownDate - now;
-
-  var studyMinutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-  if(seconds<10){
-    breakTimerDisplay.innerHTML = studyMinutes + ":0" + seconds + " ";
-  }
-  else{
-    breakTimerDisplay.innerHTML = studyMinutes + ":" + seconds + " ";
-  }
-}
-
-function timerFinished(){
-  var alarm = new Audio('alarm.mp3');
-  alarm.play(); 
-  var timeComplete = countDownDate-startCountDown;
-  var studyMinutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
-  console.log(studyMinutes);
-  totalStudyTime += studyMinutes;
-  localStorage.totalStudyTime = totalStudyTime;
-
-  if(studyMinutes <= 8){
-    breakTime+= 0.5;
-  }
-  else if (studyMinutes <= 12){
-    breakTime += 1;
-  }
-  else if (studyMinutes <= 16){
-    breakTime+= 1.5;
-  }
-  else if (studyMinutes <= 20){
-    breakTime+= 2;
-  }
-  else if (studyMinutes <= 24){
-    breakTime += 3;
-  }
-  localStorage.breakTime = breakTime;
-
-  timer.style.display="none";
-  timerBar.style.display = "none";
-  selectTime.style.display="block";
-  document.getElementById("timer-buttons").style.display="none";
 }
 
 function updateTimer(event){
@@ -193,28 +185,12 @@ function updateTimer(event){
   timerBar.style.display = "block";
   selectTime.style.display="none";
   document.getElementById("timer-buttons").style.display="block";
-  //resetButton.style.display="block"
   
   studyMinutes = event.currentTarget.time;
-  countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
-  startCountDown = new Date().getTime();
-
-  //clearInterval(studyTimerObject);
-  //studyTimerObject = setInterval(timerRunner);
-  //studyTimer.createTimer();
-  studyTimer.startTimer(studyMinutes);
-}
-
-function pauseTimer(){
-  paused = true;
-  clearInterval(studyTimerObject);
-}
-
-function resumeTimer(){
-  paused = false;
-  countDownDate = new Date().getTime() + (distance);
+  //countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
   //startCountDown = new Date().getTime();
-  studyTimerObject = setInterval(timerRunner)
+
+  studyTimer.startTimer(studyMinutes, timer, timerBar);
 }
 
 const audio = document.getElementById("youtube");
@@ -226,14 +202,15 @@ const resetButton = document.getElementById("reset");
 const stopButton = document.getElementById("stop");
 const selectTime = document.getElementById("select-time");
 const timerBar = document.getElementById("timer-bar");
-const breakBar = document.getElementById("break-bar");
+
 const toggleStat = document.getElementById("toggleStatsDropdown");
 const toggleList = document.getElementById("toggleCheckListDropdown");
 
 const breakTimerDisplay = document.getElementById("breakTimer-display");
 const breakToggle = document.getElementById("breakToggle");
-const breakTimer = document.getElementById("breakTimer");
+const breakTimerContainer = document.getElementById("breakTimerContainer");
 const breakTimerToggle = document.getElementById("toggleBreakTimer");
+const breakBar = document.getElementById("break-bar");
 
 const musicButton = document.getElementById("toggleMusic");
 const musicMenu = document.getElementById("musicPlayer");
@@ -248,21 +225,25 @@ function toggleMusicMenu(){
 breakTimerToggle.addEventListener('click', toggleBreakTimer);
 
 function toggleBreakTimer(){
-  if(breakPaused){
-    breakTimeCountDownDate = new Date().getTime() + ((localStorage.breakTime * 60 ) * 1000);
-    breakTimeStartCountDown = new Date().getTime();
+  if(breakTimer.paused == true){
+    console.log("here");
+    //breakTimeCountDownDate = new Date().getTime() + ((localStorage.breakTime * 60 ) * 1000);
+    //breakTimeStartCountDown = new Date().getTime();
     console.log(localStorage.breakTime);
-    clearInterval(breakTimerObject);
-    breakTimerObject = setInterval(breakTimerRunner);
+    var breakMinutes = Math.floor((localStorage.breakTime % (1000 * 60 * 60)) / (1000 * 60));
+    var breakSeconds = Math.floor((localStorage.breakTime % (1000 * 60)) / 1000);
+    console.log(breakMinutes);
+    breakTimer.startTimer(breakMinutes, breakTimerDisplay, breakBar, breakSeconds);
 
     breakTimerToggle.innerHTML = 'Pause';
-    breakPaused = false;
   }
   else{
-    localStorage.breakTime = Math.floor((breakTimeDistance % (1000 * 60 * 60)) / (1000 * 60));
-    clearInterval(breakTimerObject);
+    console.log("pause break");
+    breakTimer.pauseTimer();
+    localStorage.breakTime = breakTimer.distance;
+    //clearInterval(breakTimerObject);
     breakTimerToggle.innerHTML = 'Start';
-    breakPaused = true;
+    //breakPaused = true;
   }
 }
 
@@ -270,7 +251,7 @@ breakToggle.addEventListener('click', toggleBreak);
 function toggleBreak(event){
   if(studyMode){
     studyMode = false;
-    breakTimer.classList.toggle("closed");
+    breakTimerContainer.classList.toggle("closed");
     document.getElementById("studyTimerContainer").classList.toggle("closed");
     breakBar.classList.toggle("closed");
     event.currentTarget.style.backgroundColor = "#6495ED";
@@ -278,7 +259,7 @@ function toggleBreak(event){
   }
   else{
     studyMode = true;
-    breakTimer.classList.toggle("closed");
+    breakTimerContainer.classList.toggle("closed");
     document.getElementById("studyTimerContainer").classList.toggle("closed");
     breakBar.classList.toggle("closed");
     event.currentTarget.style.backgroundColor = "#FFFFFF";
@@ -319,15 +300,16 @@ resetButton.onclick = function(){
   timerBar.style.display = "none";
   selectTime.style.display="block";
   document.getElementById("timer-buttons").style.display="none";
+  studyTimer.resetTimer();
   //resetButton.style.display="none"
 }
 stopButton.onclick = function(){
-  if(paused == false){
-    pauseTimer();
+  if(studyTimer.paused == false){
+    studyTimer.pauseTimer();
     stopButton.innerHTML = 'start';
   }
   else{
-    resumeTimer();
+    studyTimer.resumeTimer(timer, timerBar);
     stopButton.innerHTML = 'stop';
   } 
 }
@@ -452,7 +434,6 @@ var timeChart = new Chart("timeChart", {
 });
 
 //video
-
 function audioSetup(id, element){
   var vid = id,
 audio_streams = {},
@@ -528,6 +509,11 @@ fetch("https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleuserc
   }
 });
 }
+
+//Timer Class
+//starTimer(minutes: int, seconds: int):
+  
+//  
 
 
 

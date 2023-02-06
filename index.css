@@ -350,9 +350,11 @@ button{
     margin-right: auto;
     text-align: center;
     width: 250px;
+    transition: 0.2s;
 }
 
 #break-bar{
+    display:none;
     margin-top: 15px;
     
     position: relative;
@@ -363,6 +365,19 @@ button{
 }
 #break-bar.closed{
     display: none;
+}
+
+#breakTimer-display{
+    outline: 2px solid;
+    padding: 10px 15px 10px 15px;
+    border-radius: 15px;
+    position: relative;
+    margin: auto;
+    margin-top: 10px;
+    
+    text-align: center;
+    font-size: 50px;
+    font-family: sans-serif;
 }
 
 #studyTimerContainer.closed{
@@ -428,11 +443,11 @@ details > summary::-webkit-details-marker {
     right: 80px;
 }
 
-#breakTimer.closed{
+#breakTimerContainer.closed{
     display:none;
 }
 
-#breakTimer{
+#breakTimerContainer{
     text-align: center;
     display: flex;
     flex-direction: column;
