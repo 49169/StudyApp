@@ -328,7 +328,7 @@ var ytEmbed = {
                 } else {
                     //this.cfg.layout = full
                     li.innerHTML = `     
-                        <div>>  ${entry.snippet.title}</div>
+                        <label>>  ${entry.snippet.title}</label> <button class="addTPLBtn">+</button>
                     `
                     //li.firstChild.firstChild.firstChild.firstChild.appendChild(a);
                 }

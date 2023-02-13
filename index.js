@@ -4,7 +4,7 @@ var
 studyTimer, 
 breakTimer, 
 studyMode, 
-checkList, 
+//checkList, 
 breakTime, 
 totalStudyTime, 
 timeStudiedEachDay, 
@@ -14,6 +14,28 @@ startCountDown,
 distance, 
 progress, 
 breakPaused;
+
+const audio = document.getElementById("youtube");
+const playButton = document.querySelector('.play-button');
+const player = document.getElementById("player");
+
+const timer = document.getElementById("timer-display");
+const resetButton = document.getElementById("reset");
+const stopButton = document.getElementById("stop");
+const selectTime = document.getElementById("select-time");
+const timerBar = document.getElementById("timer-bar");
+
+const toggleStat = document.getElementById("toggleStatsDropdown");
+const toggleList = document.getElementById("toggleCheckListDropdown");
+
+const breakTimerDisplay = document.getElementById("breakTimer-display");
+const breakToggle = document.getElementById("breakToggle");
+const breakTimerContainer = document.getElementById("breakTimerContainer");
+const breakTimerToggle = document.getElementById("toggleBreakTimer");
+const breakBar = document.getElementById("break-bar");
+
+const musicButton = document.getElementById("toggleMusic");
+const musicMenu = document.getElementById("musicPlayer");
 
 function init(){
   //Study timer
@@ -38,14 +60,6 @@ function init(){
 
   localStorage.lastTimeLogged = lastTimeLogged;
   //timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
-  timeStudiedEachDay = new Map();
-  let key = day+6 + ',' + month +','+year;
-  timeStudiedEachDay.set(key, 50);
-
-  localStorage.timeStudiedEachDay = JSON.stringify(Array.from(timeStudiedEachDay.entries()));
-
-  //Checklist of tasks 
-  checkList = [];
 
   //Amount of break time
   var breakMinutes = Math.floor((localStorage.breakTime % (1000 * 60 * 60)) / (1000 * 60));
@@ -57,13 +71,9 @@ function init(){
   breakTime = 0;
   
 }
-
-//Fetch stored data
-//localStorage.clear();
-
 class Timer{
-  constructor(time){
-    this.time = time;
+  constructor(){
+    //this.time = time;
     this.paused = true;
   }
   runTimer(parent, html, bar){
@@ -81,10 +91,10 @@ class Timer{
     var seconds = Math.floor((parent.distance % (1000 * 60)) / 1000);
 
     if(seconds<10){
-      html.innerHTML = studyMinutes + ":0" + seconds + " ";
+      //html.innerHTML = studyMinutes + ":0" + seconds + " ";
     }
     else{
-      html.innerHTML = studyMinutes + ":" + seconds + " ";
+      //html.innerHTML = studyMinutes + ":" + seconds + " ";
     }
     if (parent.timeLeft <= 0) {
       clearInterval(parent.timer);
@@ -120,6 +130,17 @@ class Timer{
     this.paused = true;
     clearInterval(this.timer);
   }
+
+  timerFinished(){
+    
+  }
+};
+class StudyTimer extends Timer{
+  constructor(html, bar){
+    super();
+    this.html = html;
+    this.bar = bar;
+  }
   timerFinished(){
     console.log("finished");
     var alarm = new Audio('alarm.mp3');
@@ -153,32 +174,117 @@ class Timer{
     document.getElementById("timer-buttons").style.display="none";
   }
 }
+class BreakTimer extends Timer{
+  timerFinished(){
 
-fetchAllData();
-init();
-
-function fetchAllData(){
-  if(localStorage.getItem('checkList')){
-    checkList = JSON.parse(localStorage.getItem('checkList'));
-  }
-  if(localStorage.getItem('breakTime')){
-    breakTime = Number(localStorage.breakTime);
-    localStorage.breakTime = 10*60*1000;
-  }
-  else{
-    localStorage.breakTime = 10*60*1000;
-  }
-  if(localStorage.getItem('totalStudyTime')){
-    totalStudyTime = Number(localStorage.totalStudyTime);
-  }
-  else{
-    localStorage.totalStudyTime = 0;
-  }
-  if(!localStorage.getItem('timeStudiedEachDay')){
-    localStorage.timeStudiedEachDay = "";
   }
 }
+class Client{
+  constructor(){
+    this.checkList = [];
+  }
+  fetchDataFromCache(){
+    if(localStorage.getItem('checkList')){
+      this.checkList = JSON.parse(localStorage.getItem('checkList'));
+      console.log(this.checkList);
+    }
+    else{
+      this.checkList = [];
+      console.log(this.checkList);
+    }
+    //if(localStorage.getItem('breakTime')){
+      this.breakTime = Number(localStorage.breakTime);
+      localStorage.breakTime = 10*60*1000;
+    //}
+   // else{
+      localStorage.breakTime = 10*60*1000;
+   // }
+    //if(localStorage.getItem('totalStudyTime')){
+      this.totalStudyTime = Number(localStorage.totalStudyTime);
+    //}
+    //else{
+      //localStorage.totalStudyTime = 0;
+    //}
+    //if(!localStorage.getItem('timeStudiedEachDay')){
+      let currentDate = new Date();
+      let day = currentDate.getDay();
+      let month = currentDate.getMonth();
+      let year = currentDate.getFullYear();
 
+      let lastTimeLogged = day + ',' + month +','+year;
+
+      localStorage.lastTimeLogged = lastTimeLogged;
+
+      this.timeStudiedEachDay = new Map();
+      let key = day+6 + ',' + month +','+year;
+      this.timeStudiedEachDay.set(key, 50);
+
+      localStorage.timeStudiedEachDay = JSON.stringify(Array.from(this.timeStudiedEachDay.entries()));
+      //localStorage.timeStudiedEachDay = "";
+    //}
+  }
+  loadDataToCache(){
+
+  }
+  setCheckList(task){
+    let data = this.checkList;
+    data.push(task);
+    this.checkList = data;
+    localStorage.setItem('checkList', JSON.stringify(this.checkList));
+  }
+}
+class CheckList{
+  constructor(){
+
+  }
+  addTask(description, date, addToStorage) {
+    const taskContainer = document.createElement('div');
+    const newTask = document.createElement('input');
+    const taskLabel = document.createElement('label');
+    const taskDescriptionNode = document.createTextNode(description + " -- due date: "+ date);
+  
+    newTask.setAttribute('type', 'checkbox');
+    newTask.setAttribute('name', description);
+    newTask.setAttribute('id', description);
+  
+    newTask.addEventListener('click', this.updateTask);
+  
+    taskLabel.setAttribute('for', description);
+    taskLabel.appendChild(taskDescriptionNode);
+    taskLabel.className = 'taskLabel';
+  
+    taskContainer.classList.add('task-item');
+    taskContainer.appendChild(newTask);
+    taskContainer.appendChild(taskLabel);
+  
+    taskList.appendChild(taskContainer);
+    console.log("add task");
+    if(addToStorage){
+      //client.checkList.push(description);
+      client.setCheckList(description);
+      //localStorage.setItem('checkList', JSON.stringify(checkList));
+    }
+  }
+  updateTask(event){
+    //console.log(event.currentTarget.children[0].id);
+    if(event.currentTarget.checked){
+      const index = checkList.indexOf(event.currentTarget.id);
+      console.log(index);
+      if(index > -1){
+        checkList.splice(index, 1);
+      }
+      localStorage.setItem('checkList', JSON.stringify(checkList));
+    }
+    else{
+      console.log("not checked");
+    }
+  }
+  loadCheckList(){
+    for(let i = 0; i<client.checkList.length; i++){
+      this.addTask(client.checkList[i]);
+    }
+  }
+}
 function updateTimer(event){
   timer.innerHTML = "";
   timer.style.display="block";
@@ -193,27 +299,78 @@ function updateTimer(event){
   studyTimer.startTimer(studyMinutes, timer, timerBar);
 }
 
-const audio = document.getElementById("youtube");
-const playButton = document.querySelector('.play-button');
-const player = document.getElementById("player");
+class Data{
+  constructor(id, data){
+    this.id = id;
+    this.data = data;
+  }
+  storeData(){
+    localStorage.setItem(id, data);
+  }
+  updateData(data){
+    this.data = data;
+  }
+  deleteAllData(){
+    localStorage.setItem(this.id, null);
+  }
+  fetchData(){
+    this.data = localStorage.getItem(id);
+  }
+  getData(){
+    return this.data;
+  }
+}
+class TimeData extends Data{
+  constructor(id, data){
+    super(id,data);
+  }
+  updateData(time, data){
+    this.data[time] = data;
+  }
+  updateDataWithSpecificField(time, data, field){
+    this.data[time][field] = data;
+  }
+  getSpecificTimeData(time){
+    return this.data[time];
+  }
+}
 
-const timer = document.getElementById("timer-display");
-const resetButton = document.getElementById("reset");
-const stopButton = document.getElementById("stop");
-const selectTime = document.getElementById("select-time");
-const timerBar = document.getElementById("timer-bar");
+class StudyData extends TimeData{
+  constructor(id, data){
+    super(id, data);
+  }
+  updateStudyTime(date, minutes){
+    super.updateData(date, super.getSpecificTimeData(date)+=minutes);
+  }
+}
 
-const toggleStat = document.getElementById("toggleStatsDropdown");
-const toggleList = document.getElementById("toggleCheckListDropdown");
+class BreakData extends TimeData{
+  constructor(id, data){
+    super(id, data);
+  }
+  addBreakTime(date, minutes){
+    super.updateData(date, super.getSpecificTimeData(date)+=minutes);
+  }
+  substractBreakTime(date, minutes){
+    super.updateData(date, super.getSpecificTimeData(date)-=minutes);
+  }
+}
 
-const breakTimerDisplay = document.getElementById("breakTimer-display");
-const breakToggle = document.getElementById("breakToggle");
-const breakTimerContainer = document.getElementById("breakTimerContainer");
-const breakTimerToggle = document.getElementById("toggleBreakTimer");
-const breakBar = document.getElementById("break-bar");
-
-const musicButton = document.getElementById("toggleMusic");
-const musicMenu = document.getElementById("musicPlayer");
+class CheckListData extends TimeData{
+  constructor(id, data){
+    super(id, data);
+  }
+  addNewTask(date, name, complete, time_allotted, due_date){
+    super.updateDataWithSpecificField(date, "name", name);
+    super.updateDataWithSpecificField(date, "complete", complete);
+    super.updateDataWithSpecificField(date, "time_allotted", time_allotted);
+    super.updateDataWithSpecificField(date, "due_date", due_date);
+  }
+  removeTask(date, name){
+    //super.updateDataWithSpecificField(date, "name")
+  }
+  
+}
 
 let isPlaying = false;
 
@@ -332,64 +489,6 @@ function toggleAudio(event){
 const form = document.getElementById('task-form');
 const taskList = document.getElementById('tasks');
 
-form.onsubmit = function (e) {
-	e.preventDefault();
-	const inputField = document.getElementById('task-input');
-  const datefield = document.getElementById('date-input');
-  console.log(datefield.value);
-  if(inputField.value != '' && datefield.value != ''){
-    addTask(inputField.value, datefield.value, true);
-  }
-	form.reset();
-};
-
-//Tasks
-function addTask(description, date, addToStorage) {
-	const taskContainer = document.createElement('div');
-	const newTask = document.createElement('input');
-	const taskLabel = document.createElement('label');
-	const taskDescriptionNode = document.createTextNode(description + " -- due date: "+ date);
-
-	newTask.setAttribute('type', 'checkbox');
-	newTask.setAttribute('name', description);
-	newTask.setAttribute('id', description);
-
-  newTask.addEventListener('click', updateTask);
-
-	taskLabel.setAttribute('for', description);
-	taskLabel.appendChild(taskDescriptionNode);
-  taskLabel.className = 'taskLabel';
-
-	taskContainer.classList.add('task-item');
-	taskContainer.appendChild(newTask);
-	taskContainer.appendChild(taskLabel);
-
-	taskList.appendChild(taskContainer);
-
-  if(addToStorage){
-    checkList.push(description);
-    localStorage.setItem('checkList', JSON.stringify(checkList));
-  }
-}
-
-function updateTask(event){
-  //console.log(event.currentTarget.children[0].id);
-  if(event.currentTarget.checked){
-    const index = checkList.indexOf(event.currentTarget.id);
-    console.log(index);
-    if(index > -1){
-      checkList.splice(index, 1);
-    }
-    localStorage.setItem('checkList', JSON.stringify(checkList));
-  }
-  else{
-    console.log("not checked");
-  }
-}
-
-for(let i = 0; i<checkList.length; i++){
-  addTask(checkList[i]);
-}
 function closeTask(){
   document.getElementById("statsDropdown-content").classList.toggle("closed");
 };
@@ -401,37 +500,38 @@ toggleStat.addEventListener('click', closeTask);
 toggleList.addEventListener('click', closeList);
 
 //Pie Chart
-
-let values = Array.from(timeStudiedEachDay.values());
-let labels = Array.from(timeStudiedEachDay.keys());
-console.log(values);
-Chart.defaults.plugins.legend.display = false;
-var timeChart = new Chart("timeChart", {
-  type: 'bar',
-  data: {
-    labels: labels,
-    datasets: [{
-      label:' Minutes',
-      data: values,
-      backgroundColor: [
-        'rgb(255, 99, 132)',
-        'rgb(54, 162, 235)',
-        'rgb(255, 205, 86)'
-      ],
-      hoverOffset: 4
-    }]
-  },
-  options:{
-    responsive:false,
-    plugins: {
-      legend: {
-          labels: {
-              color: 'rgb(255, 99, 132)'
-          }
-      }
-  }
-  },
-});
+function initStats(){
+  let values = Array.from(client.timeStudiedEachDay.values());
+  let labels = Array.from(client.timeStudiedEachDay.keys());
+  console.log(values);
+  Chart.defaults.plugins.legend.display = false;
+  var timeChart = new Chart("timeChart", {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label:' Minutes',
+        data: values,
+        backgroundColor: [
+          'rgb(255, 99, 132)',
+          'rgb(54, 162, 235)',
+          'rgb(255, 205, 86)'
+        ],
+        hoverOffset: 4
+      }]
+    },
+    options:{
+      responsive:false,
+      plugins: {
+        legend: {
+            labels: {
+                color: 'rgb(255, 99, 132)'
+            }
+        }
+    }
+    },
+  });
+}
 
 //video
 function audioSetup(id, element){
@@ -449,7 +549,6 @@ fetch("https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleuserc
       data = data.replace('ytInitialPlayerResponse = null', '');
       data = data.replace('ytInitialPlayerResponse=window.ytInitialPlayerResponse', '');
       data = data.replace('ytplayer.config={args:{raw_player_response:ytInitialPlayerResponse}};', '');
-
 
       var matches = regex.exec(data);
       var data = matches && matches.length > 1 ? JSON.parse(matches[1]) : false;
@@ -510,10 +609,28 @@ fetch("https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleuserc
 });
 }
 
-//Timer Class
-//starTimer(minutes: int, seconds: int):
-  
-//  
+//fetchAllData();
+var client = new Client();
+var checkList = new CheckList();
 
+client.fetchDataFromCache();
+checkList.loadCheckList();
+//checkList.addTask("hi","hi", true);
+//checkList.deleteAllData();
+//localStorage.setItem("checkList", "");
 
+init();
 
+initStats();
+
+document.getElementById("submit-task-btn").onclick = (e) =>{
+	e.preventDefault();
+	const inputField = document.getElementById('task-input');
+  const datefield = document.getElementById('date-input');
+  //console.log(datefield.value);
+  if(inputField.value != '' && datefield.value != ''){
+    console.log(checkList);
+    checkList.addTask(inputField.value, datefield.value, true);
+  }
+	form.reset();
+};
