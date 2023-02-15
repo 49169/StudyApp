@@ -4,7 +4,7 @@ var
 studyTimer, 
 breakTimer, 
 studyMode, 
-//checkList, 
+checkListData, 
 breakTime, 
 totalStudyTime, 
 timeStudiedEachDay, 
@@ -47,6 +47,8 @@ function init(){
 
   studyTimer = new Timer();
   breakTimer = new Timer();
+
+  checkListData = new CheckListData("checkList",[]);
 
   //Total minutes studied per day
   totalStudyTime = 0;
@@ -91,10 +93,10 @@ class Timer{
     var seconds = Math.floor((parent.distance % (1000 * 60)) / 1000);
 
     if(seconds<10){
-      //html.innerHTML = studyMinutes + ":0" + seconds + " ";
+      html.innerHTML = studyMinutes + ":0" + seconds + " ";
     }
     else{
-      //html.innerHTML = studyMinutes + ":" + seconds + " ";
+      html.innerHTML = studyMinutes + ":" + seconds + " ";
     }
     if (parent.timeLeft <= 0) {
       clearInterval(parent.timer);
@@ -244,7 +246,7 @@ class CheckList{
     const taskDescriptionNode = document.createTextNode(description + " -- due date: "+ date);
   
     newTask.setAttribute('type', 'checkbox');
-    newTask.setAttribute('name', description);
+    newTask.setAttribute('name', date.toString() + ", "+ description);
     newTask.setAttribute('id', description);
   
     newTask.addEventListener('click', this.updateTask);
@@ -262,12 +264,15 @@ class CheckList{
     if(addToStorage){
       //client.checkList.push(description);
       client.setCheckList(description);
+      checkListData.addNewTask(description, false, 1, date);
       //localStorage.setItem('checkList', JSON.stringify(checkList));
     }
   }
   updateTask(event){
     //console.log(event.currentTarget.children[0].id);
     if(event.currentTarget.checked){
+      var components = event.currentTarget.name.split(",");
+      checkListData.removeTask(components[0], components[1]);
       const index = checkList.indexOf(event.currentTarget.id);
       console.log(index);
       if(index > -1){
@@ -356,18 +361,18 @@ class BreakData extends TimeData{
   }
 }
 
-class CheckListData extends TimeData{
+class CheckListData extends Data{
   constructor(id, data){
     super(id, data);
   }
-  addNewTask(date, name, complete, time_allotted, due_date){
-    super.updateDataWithSpecificField(date, "name", name);
-    super.updateDataWithSpecificField(date, "complete", complete);
-    super.updateDataWithSpecificField(date, "time_allotted", time_allotted);
-    super.updateDataWithSpecificField(date, "due_date", due_date);
+  addNewTask(name, complete, time_allotted, due_date){
+    this.data[name+"_"+due_date.toString()] = [due_date, name, complete, time_allotted];
+    console.log(checkListData.data);
   }
-  removeTask(date, name){
+  removeTask(name, due_date){
     //super.updateDataWithSpecificField(date, "name")
+    this.data[name+"_"+due_date]="";
+    console.log(checkListData.data);
   }
   
 }
@@ -614,7 +619,7 @@ var client = new Client();
 var checkList = new CheckList();
 
 client.fetchDataFromCache();
-checkList.loadCheckList();
+//checkList.loadCheckList();
 //checkList.addTask("hi","hi", true);
 //checkList.deleteAllData();
 //localStorage.setItem("checkList", "");
