@@ -19,6 +19,7 @@ client,
 checkList,
 timeChart
 
+//HTML Elements
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
 const player = document.getElementById("player");
@@ -46,15 +47,12 @@ const musicMenu = document.getElementById("musicPlayer");
 const form = document.getElementById('task-form');
 const taskList = document.getElementById('tasks');
 
-//show study statistics
-//When study session is finished, update studyData
-
-//TODO: Select task as current task; sort tasks by due date; toggle button class?
+const popupContainer = document.getElementById('popupBox');
+const popupTitle = document.getElementById('popupTitle');
+const popupDescription = document.getElementById('popupDescription');
+const closePopupBtn = document.getElementById('closePopup');
 
 function init(){
-  //Study timer
-
-  distance = 0;
 
   studyMode = true;
 
@@ -76,29 +74,24 @@ function init(){
 
   //client.fetchDataFromCache();
   checkList.loadCheckList();
-  //checkList.addTask("hi","hi", true);
   //checkList.deleteAllData();
 
   //Total minutes studied per day
   totalStudyTime = 0;
-
-  let currentDate = new Date();
-  let day = currentDate.getDay();
-  let month = currentDate.getMonth();
-  let year = currentDate.getFullYear();
-
+  
+  //Award first time login
   let lastTimeLogged = new Date().toJSON().slice(0, 10);
-
+  //lastTimeLogged = null;
+  if (lastTimeLogged != localStorage.lastTimeLogged){
+    showPopup("Award", "5 minutes of break time")
+    if(breakTimeData.getData().get("0")!=null){
+      breakTimeData.updateItem("0", breakTimeData.getData().get("0") + 5);
+    }
+    else{
+      breakTimeData.updateItem("0", 0 + 5);
+    }
+  }
   localStorage.lastTimeLogged = lastTimeLogged;
-  //timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
-
-  //Amount of break time
-  var breakMinutes = Math.floor((breakTimeData % (1000 * 60 * 60)) / (1000 * 60));
-  //var breakSeconds = Math.floor((localStorage.breakTimeData % (1000 * 60)) / 1000);
-  //if(breakSeconds<10){
-  //  breakSeconds = "0"+breakSeconds;
-  //}
-  //document.getElementById("breakTimer-display").innerHTML = breakMinutes+": "+breakSeconds;
 }
 
 class Timer{
@@ -203,6 +196,7 @@ class StudyTimer extends Timer{
     }
     //console.log(break_Time);
     
+    showPopup("Award", break_Time+ " minutes of break time")
     if(breakTimeData.getData().get("0")!=null){
       breakTimeData.updateItem("0", breakTimeData.getData().get("0") + break_Time);
     }
@@ -463,7 +457,7 @@ class Data{
     return this.data;
   }
 }
-
+/*
 class TimeData extends Data{
   constructor(id, data){
     super(id,data);
@@ -478,7 +472,7 @@ class TimeData extends Data{
     return this.data[time];
   }
 }
-
+*/
 class StudyData extends Data{
   constructor(id, data){
     super(id, data);
@@ -492,7 +486,7 @@ class StudyData extends Data{
     }
   }
 }
-
+/*
 class BreakData extends TimeData{
   constructor(id, data){
     super(id, data);
@@ -504,7 +498,7 @@ class BreakData extends TimeData{
     super.updateData(date, super.getSpecificTimeData(date)-=minutes);
   }
 }
-
+*/
 class CheckListData extends Data{
   constructor(id, data){
     super(id, data);
@@ -539,17 +533,6 @@ class CheckListData extends Data{
     this.updateData(sorted);
     checkList.reloadCheckList();
   }
-}
-
-//Intake button and corresponding function
-class ToggleButton{
-  constructor(button, func){
-    this.button = button;
-    this.func = func;
-
-    this.button.addEventListener('click', func);
-  }
-
 }
 
 let isPlaying = false;
@@ -702,7 +685,6 @@ function initStats(){
     },
   });
 }
-
 //Video Player
 function audioSetup(id, element){
   var vid = id,
@@ -778,6 +760,18 @@ fetch("https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleuserc
   }
 });
 }
+
+//popup
+function showPopup(title, message){
+  popupContainer.style.display = "block";
+  popupTitle.innerHTML = title;
+  popupDescription.innerHTML = message;
+}
+function closePopup(){
+  popupContainer.style.display = "none";
+}
+
+closePopupBtn.addEventListener('click', closePopup);
 
 
 init();
