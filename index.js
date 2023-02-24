@@ -389,7 +389,7 @@ function updateTimer(event){
   //countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
   //startCountDown = new Date().getTime();
 
-  studyTimer.startTimer(1.1, timer, timerBar);
+  studyTimer.startTimer(studyMinutes, timer, timerBar);
 }
 function updateBreakTimer(event){
   if(event.currentTarget.time<= breakTimeData.getData().get("0")){
