@@ -392,6 +392,8 @@ button{
     text-align: center;
     font-size: 50px;
     font-family: sans-serif;
+
+    display: none;
 }
 
 #studyTimerContainer.closed{
@@ -552,4 +554,9 @@ details > summary::-webkit-details-marker {
     margin-right:auto;
     padding-left: 15px;
     padding-right: 15px;
+}
+
+#breakIndicator{
+    font-family: sans-serif;
+    font-size: 20px;
 }

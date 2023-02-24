@@ -5,7 +5,7 @@ studyTimer,
 breakTimer, 
 studyMode, 
 checkListData, 
-breakTime, 
+breakTimeData, 
 totalStudyTime, 
 timeStudiedEachDay, 
 studyMinutes, 
@@ -13,7 +13,11 @@ countDownDate,
 startCountDown, 
 distance, 
 progress, 
-breakPaused;
+breakPaused,
+studyData,
+client,
+checkList,
+timeChart
 
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
@@ -33,22 +37,47 @@ const breakToggle = document.getElementById("breakToggle");
 const breakTimerContainer = document.getElementById("breakTimerContainer");
 const breakTimerToggle = document.getElementById("toggleBreakTimer");
 const breakBar = document.getElementById("break-bar");
+const selectBreakTime = document.getElementById("select-break-time");
+const breakIndicator = document.getElementById("breakIndicator");
 
 const musicButton = document.getElementById("toggleMusic");
 const musicMenu = document.getElementById("musicPlayer");
 
+const form = document.getElementById('task-form');
+const taskList = document.getElementById('tasks');
+
+//show study statistics
+//When study session is finished, update studyData
+
+//TODO: Select task as current task; sort tasks by due date; toggle button class?
+
 function init(){
   //Study timer
-  var studyMinutes = 8;
 
   distance = 0;
 
   studyMode = true;
 
-  studyTimer = new Timer();
-  breakTimer = new Timer();
+  studyTimer = new StudyTimer();
+  breakTimer = new BreakTimer();
 
-  checkListData = new CheckListData("checkList",[]);
+  checkListData = new CheckListData("checkList");
+  studyData = new StudyData("studyData");
+  breakTimeData = new Data("breakTimeData");
+
+  checkListData.fetchData();
+  breakTimeData.fetchData();
+  studyData.fetchData();
+
+  updateBreakIndicator();
+  //checkListData.deleteAllData();
+
+  checkList = new CheckList();
+
+  //client.fetchDataFromCache();
+  checkList.loadCheckList();
+  //checkList.addTask("hi","hi", true);
+  //checkList.deleteAllData();
 
   //Total minutes studied per day
   totalStudyTime = 0;
@@ -58,21 +87,20 @@ function init(){
   let month = currentDate.getMonth();
   let year = currentDate.getFullYear();
 
-  let lastTimeLogged = day + ',' + month +','+year;
+  let lastTimeLogged = new Date().toJSON().slice(0, 10);
 
   localStorage.lastTimeLogged = lastTimeLogged;
   //timeStudiedEachDay = new Map(JSON.parse(localStorage.timeStudiedEachDay));
 
   //Amount of break time
-  var breakMinutes = Math.floor((localStorage.breakTime % (1000 * 60 * 60)) / (1000 * 60));
-  var breakSeconds = Math.floor((localStorage.breakTime % (1000 * 60)) / 1000);
-  if(breakSeconds<10){
-    breakSeconds = "0"+breakSeconds;
-  }
-  document.getElementById("breakTimer-display").innerHTML = breakMinutes+": "+breakSeconds;
-  breakTime = 0;
-  
+  var breakMinutes = Math.floor((breakTimeData % (1000 * 60 * 60)) / (1000 * 60));
+  //var breakSeconds = Math.floor((localStorage.breakTimeData % (1000 * 60)) / 1000);
+  //if(breakSeconds<10){
+  //  breakSeconds = "0"+breakSeconds;
+  //}
+  //document.getElementById("breakTimer-display").innerHTML = breakMinutes+": "+breakSeconds;
 }
+
 class Timer{
   constructor(){
     //this.time = time;
@@ -85,7 +113,9 @@ class Timer{
     console.log(parent.distance);
     
     parent.progress = 100 - ((parent.distance)/(parent.countDownDate-parent.startCountDown) *100);
-    bar.value = parent.progress;
+    if(bar != null){
+      bar.value = parent.progress;
+    }
 
     parent.timeLeft = parent.countDownDate - parent.now;
   
@@ -99,6 +129,7 @@ class Timer{
       html.innerHTML = studyMinutes + ":" + seconds + " ";
     }
     if (parent.timeLeft <= 0) {
+      html.innerHTML = "0" + ":" + "00" + " ";
       clearInterval(parent.timer);
       parent.timerFinished();
     }
@@ -147,40 +178,79 @@ class StudyTimer extends Timer{
     console.log("finished");
     var alarm = new Audio('alarm.mp3');
     alarm.play(); 
-    var timeComplete = countDownDate-startCountDown;
+    var timeComplete = this.countDownDate-this.startCountDown;
+    console.log(timeComplete);
     var studyMinutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
+    console.log(studyMinutes);
+    //totalStudyTime += studyMinutes;
+    //localStorage.totalStudyTime = totalStudyTime;
 
-    totalStudyTime += studyMinutes;
-    localStorage.totalStudyTime = totalStudyTime;
-
+    var break_Time = 0;
     if(studyMinutes <= 8){
-      breakTime+= 0.5;
+      break_Time += 0.5;
     }
     else if (studyMinutes <= 12){
-      breakTime += 1;
+      break_Time  += 1;
     }
     else if (studyMinutes <= 16){
-      breakTime+= 1.5;
+      break_Time += 1.5;
     }
     else if (studyMinutes <= 20){
-      breakTime+= 2;
+      break_Time += 2;
     }
     else if (studyMinutes <= 24){
-      breakTime += 3;
+      break_Time  += 3;
     }
-    localStorage.breakTime = breakTime;
-
+    //console.log(break_Time);
+    
+    if(breakTimeData.getData().get("0")!=null){
+      breakTimeData.updateItem("0", breakTimeData.getData().get("0") + break_Time);
+    }
+    else{
+      breakTimeData.updateItem("0", 0 + break_Time);
+    }
+    console.log("timer finished");
     timer.style.display="none";
     timerBar.style.display = "none";
     selectTime.style.display="block";
     document.getElementById("timer-buttons").style.display="none";
+    
+    studyData.updateStudyTime((new Date().toJSON().slice(0, 10)), studyMinutes);
+
+    //Update time spent on current task if there is one
+    for(const [key, value] of checkListData.getData().entries()){
+      if(value[2]==true){
+        checkListData.updateTaskStatus(key, true, studyMinutes);
+      }
+    }
+    checkList.reloadCheckList();
+    updateChart();
+
+    updateBreakIndicator();
   }
 }
 class BreakTimer extends Timer{
   timerFinished(){
+    console.log("break finished");
 
+    var alarm = new Audio('alarm.mp3');
+    alarm.play(); 
+
+    selectBreakTime.style.display = "block";
+    breakTimerDisplay.style.display = "none";
+    breakIndicator.style.display = "block"
+
+    var timeComplete = this.countDownDate-this.startCountDown;
+    console.log(timeComplete);
+    var breakMinutes = (timeComplete/1000)/60;
+
+    //Convert to seconds and then percent
+    breakTimeData.updateItem("0", breakTimeData.getData().get("0")-breakMinutes);
+    
+    updateBreakIndicator();
   }
 }
+/*
 class Client{
   constructor(){
     this.checkList = [];
@@ -194,100 +264,124 @@ class Client{
       this.checkList = [];
       console.log(this.checkList);
     }
-    //if(localStorage.getItem('breakTime')){
-      this.breakTime = Number(localStorage.breakTime);
-      localStorage.breakTime = 10*60*1000;
-    //}
-   // else{
-      localStorage.breakTime = 10*60*1000;
-   // }
-    //if(localStorage.getItem('totalStudyTime')){
-      this.totalStudyTime = Number(localStorage.totalStudyTime);
-    //}
-    //else{
-      //localStorage.totalStudyTime = 0;
-    //}
-    //if(!localStorage.getItem('timeStudiedEachDay')){
-      let currentDate = new Date();
-      let day = currentDate.getDay();
-      let month = currentDate.getMonth();
-      let year = currentDate.getFullYear();
+    this.breakTimeData = Number(localStorage.breakTimeData);
+    //localStorage.breakTimeData = 10*60*1000;
 
-      let lastTimeLogged = day + ',' + month +','+year;
+    this.totalStudyTime = Number(localStorage.totalStudyTime);
+    
+    let currentDate = new Date();
+    let day = currentDate.getDay();
+    let month = currentDate.getMonth();
+    let year = currentDate.getFullYear();
 
-      localStorage.lastTimeLogged = lastTimeLogged;
+    let lastTimeLogged = day + ',' + month +','+year;
 
-      this.timeStudiedEachDay = new Map();
-      let key = day+6 + ',' + month +','+year;
-      this.timeStudiedEachDay.set(key, 50);
+    localStorage.lastTimeLogged = lastTimeLogged;
 
-      localStorage.timeStudiedEachDay = JSON.stringify(Array.from(this.timeStudiedEachDay.entries()));
-      //localStorage.timeStudiedEachDay = "";
-    //}
+    this.timeStudiedEachDay = new Map();
+    let key = day+6 + ',' + month +','+year;
+    this.timeStudiedEachDay.set(key, 50);
+
+    localStorage.timeStudiedEachDay = JSON.stringify(Array.from(this.timeStudiedEachDay.entries()));
+      
   }
   loadDataToCache(){
 
   }
   setCheckList(task){
     let data = this.checkList;
-    data.push(task);
-    this.checkList = data;
-    localStorage.setItem('checkList', JSON.stringify(this.checkList));
+    //data.push(task);
+    //this.checkList = data;
+    //localStorage.setItem('checkList', JSON.stringify(this.checkList));
   }
 }
+*/
 class CheckList{
   constructor(){
 
   }
-  addTask(description, date, addToStorage) {
+  addTask(description, date, current, timeAllo, addToStorage, timeSpent = 0) {
     const taskContainer = document.createElement('div');
     const newTask = document.createElement('input');
-    const taskLabel = document.createElement('label');
-    const taskDescriptionNode = document.createTextNode(description + " -- due date: "+ date);
+    const taskLabel = document.createElement('div');
+    const taskTimeLabel = document.createElement('div');
+    const taskDescriptionNode = document.createTextNode(description);
+    
   
     newTask.setAttribute('type', 'checkbox');
-    newTask.setAttribute('name', date.toString() + ", "+ description);
+    newTask.setAttribute('name', description +"_"+date);
     newTask.setAttribute('id', description);
-  
-    newTask.addEventListener('click', this.updateTask);
-  
+    newTask.addEventListener('click', this.updateCompletion);
+
+    let trimDate = date.substring(5,date.length);
+    taskTimeLabel.style.marginRight = "0px";
+    taskTimeLabel.style.marginLeft = "auto";
+    taskTimeLabel.innerHTML =  timeSpent + "/" + timeAllo + " | due: " + trimDate;
+    
     taskLabel.setAttribute('for', description);
     taskLabel.appendChild(taskDescriptionNode);
     taskLabel.className = 'taskLabel';
+    taskLabel.setAttribute('name', description +"_"+date);
+    taskLabel.addEventListener('click', this.updateCurrentTask);
   
     taskContainer.classList.add('task-item');
     taskContainer.appendChild(newTask);
     taskContainer.appendChild(taskLabel);
+    taskContainer.appendChild(taskTimeLabel);
+    if(current){
+      taskContainer.style.backgroundColor = "cornflowerblue";
+    }
+    else{
+      taskContainer.style.backgroundColor = "White";
+    }
+    //taskContainer.addEventListener('click', this.updateCurrentTask);
   
     taskList.appendChild(taskContainer);
     console.log("add task");
     if(addToStorage){
-      //client.checkList.push(description);
-      client.setCheckList(description);
-      checkListData.addNewTask(description, false, 1, date);
-      //localStorage.setItem('checkList', JSON.stringify(checkList));
+      console.log(timeAllo);
+      checkListData.addNewTask(description, false, timeAllo, date);
+      checkListData.sortTasks();
     }
   }
-  updateTask(event){
+  updateCompletion(event){
     //console.log(event.currentTarget.children[0].id);
     if(event.currentTarget.checked){
       var components = event.currentTarget.name.split(",");
-      checkListData.removeTask(components[0], components[1]);
-      const index = checkList.indexOf(event.currentTarget.id);
-      console.log(index);
-      if(index > -1){
-        checkList.splice(index, 1);
-      }
-      localStorage.setItem('checkList', JSON.stringify(checkList));
+      checkListData.removeTask(event.currentTarget.name);
     }
     else{
       console.log("not checked");
     }
   }
-  loadCheckList(){
-    for(let i = 0; i<client.checkList.length; i++){
-      this.addTask(client.checkList[i]);
+  updateCurrentTask(event){
+    //Reset colors
+    let children = taskList.children;
+    for (var i = 0; i < children.length; i++) {
+      if (children[i].style.backgroundColor != "White"){
+        children[i].style.backgroundColor = "White";
+      }
     }
+    //console.log(event.currentTarget);
+    if(checkListData.getData().get(event.currentTarget.parentElement.children[0].name)[2]==true){
+      checkListData.updateTaskStatus(String(event.currentTarget.parentElement.children[0].name), false);
+    }
+    else{
+      event.currentTarget.parentElement.style.backgroundColor = "cornflowerblue";
+      checkListData.updateTaskStatus(String(event.currentTarget.parentElement.children[0].name), true);
+    }
+    
+  }
+  loadCheckList(){
+    for (const [key, value] of checkListData.getData().entries()) {
+      //console.log(key, value);
+      var keys = key.split("_");
+      this.addTask(keys[0], keys[1], value[2], value[1], false, value[3]);
+    }
+  }
+  reloadCheckList(){
+    taskList.innerHTML = '';
+    this.loadCheckList();
   }
 }
 function updateTimer(event){
@@ -301,112 +395,18 @@ function updateTimer(event){
   //countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
   //startCountDown = new Date().getTime();
 
-  studyTimer.startTimer(studyMinutes, timer, timerBar);
+  studyTimer.startTimer(1.1, timer, timerBar);
 }
-
-class Data{
-  constructor(id, data){
-    this.id = id;
-    this.data = data;
-  }
-  storeData(){
-    localStorage.setItem(id, data);
-  }
-  updateData(data){
-    this.data = data;
-  }
-  deleteAllData(){
-    localStorage.setItem(this.id, null);
-  }
-  fetchData(){
-    this.data = localStorage.getItem(id);
-  }
-  getData(){
-    return this.data;
+function updateBreakTimer(event){
+  if(event.currentTarget.time<= breakTimeData.getData().get("0")){
+    breakTimer.startTimer(event.currentTarget.time, breakTimerDisplay, breakBar);
+    selectBreakTime.style.display = "none";
+    breakTimerDisplay.style.display = "block";
+    breakIndicator.style.display = "none";
   }
 }
-class TimeData extends Data{
-  constructor(id, data){
-    super(id,data);
-  }
-  updateData(time, data){
-    this.data[time] = data;
-  }
-  updateDataWithSpecificField(time, data, field){
-    this.data[time][field] = data;
-  }
-  getSpecificTimeData(time){
-    return this.data[time];
-  }
-}
-
-class StudyData extends TimeData{
-  constructor(id, data){
-    super(id, data);
-  }
-  updateStudyTime(date, minutes){
-    super.updateData(date, super.getSpecificTimeData(date)+=minutes);
-  }
-}
-
-class BreakData extends TimeData{
-  constructor(id, data){
-    super(id, data);
-  }
-  addBreakTime(date, minutes){
-    super.updateData(date, super.getSpecificTimeData(date)+=minutes);
-  }
-  substractBreakTime(date, minutes){
-    super.updateData(date, super.getSpecificTimeData(date)-=minutes);
-  }
-}
-
-class CheckListData extends Data{
-  constructor(id, data){
-    super(id, data);
-  }
-  addNewTask(name, complete, time_allotted, due_date){
-    this.data[name+"_"+due_date.toString()] = [due_date, name, complete, time_allotted];
-    console.log(checkListData.data);
-  }
-  removeTask(name, due_date){
-    //super.updateDataWithSpecificField(date, "name")
-    this.data[name+"_"+due_date]="";
-    console.log(checkListData.data);
-  }
-  
-}
-
-let isPlaying = false;
-
-musicButton.addEventListener('click', toggleMusicMenu);
-function toggleMusicMenu(){
-  musicPlayer.classList.toggle("closed");
-}
-
-breakTimerToggle.addEventListener('click', toggleBreakTimer);
-
-function toggleBreakTimer(){
-  if(breakTimer.paused == true){
-    console.log("here");
-    //breakTimeCountDownDate = new Date().getTime() + ((localStorage.breakTime * 60 ) * 1000);
-    //breakTimeStartCountDown = new Date().getTime();
-    console.log(localStorage.breakTime);
-    var breakMinutes = Math.floor((localStorage.breakTime % (1000 * 60 * 60)) / (1000 * 60));
-    var breakSeconds = Math.floor((localStorage.breakTime % (1000 * 60)) / 1000);
-    console.log(breakMinutes);
-    breakTimer.startTimer(breakMinutes, breakTimerDisplay, breakBar, breakSeconds);
-
-    breakTimerToggle.innerHTML = 'Pause';
-  }
-  else{
-    console.log("pause break");
-    breakTimer.pauseTimer();
-    localStorage.breakTime = breakTimer.distance;
-    //clearInterval(breakTimerObject);
-    breakTimerToggle.innerHTML = 'Start';
-    //breakPaused = true;
-  }
+function updateBreakIndicator(){
+  breakIndicator.innerHTML = "You have: " + breakTimeData.getData().get("0")*60 + " seconds of break time"
 }
 
 breakToggle.addEventListener('click', toggleBreak);
@@ -427,9 +427,140 @@ function toggleBreak(event){
     event.currentTarget.style.backgroundColor = "#FFFFFF";
   }
 }
+// Default data type: Map()
+/* Storage:
+  Converting to JSON: JSON.stringify(Array.from(DATA)));
+  Converting to Map(): new Map(JSON.parse(DATA));
+*/
 
+class Data{
+  constructor(id, data){
+    this.id = id;
+    this.data = new Map();
+  }
+  storeData(){
+    localStorage.setItem(this.id, JSON.stringify(Array.from(this.data.entries())));
+  }
+  updateData(data){
+    this.data = data;
+    this.storeData();
+  }
+  updateItem(key, value){
+    this.data.set(key, value);
+    this.storeData();
+  }
+  deleteItem(key){
+    this.data.delete(key);
+    this.storeData();
+  }
+  deleteAllData(){
+    localStorage.setItem(this.id, null);
+  }
+  fetchData(){
+    this.data = new Map(JSON.parse(localStorage.getItem(this.id)));
+  }
+  getData(){
+    return this.data;
+  }
+}
+
+class TimeData extends Data{
+  constructor(id, data){
+    super(id,data);
+  }
+  updateData(time, data){
+    this.data[time] = data;
+  }
+  updateDataWithSpecificField(time, data, field){
+    this.data[time][field] = data;
+  }
+  getSpecificTimeData(time){
+    return this.data[time];
+  }
+}
+
+class StudyData extends Data{
+  constructor(id, data){
+    super(id, data);
+  }
+  updateStudyTime(date, minutes){
+    if(this.data.get(date)!=null){
+      this.updateItem(date, this.getData().get(date)+minutes);
+    }
+    else{
+      this.updateItem(date, 0+minutes);
+    }
+  }
+}
+
+class BreakData extends TimeData{
+  constructor(id, data){
+    super(id, data);
+  }
+  addBreakTime(date, minutes){
+    super.updateData(date, super.getSpecificTimeData(date)+=minutes);
+  }
+  substractBreakTime(date, minutes){
+    super.updateData(date, super.getSpecificTimeData(date)-=minutes);
+  }
+}
+
+class CheckListData extends Data{
+  constructor(id, data){
+    super(id, data);
+  }
+  addNewTask(name, complete, time_allotted, due_date, current=false){
+    this.updateItem(name+"_"+due_date, [complete, time_allotted, current, 0]);
+  }
+  removeTask(id){
+    this.deleteItem(id);
+  }
+  updateTaskStatus(id, current, timeSpent = 0){
+    //Remove current task
+    for(const [key, value] of this.getData().entries()){
+      if(value[2]==true){
+        value[2] = false;
+      }
+    }
+    //Set as new current task;
+    //console.log(id);
+    let values = this.getData().get(id);
+    values[2] = current;
+    values[3] += timeSpent;
+    this.updateItem(id, values);
+  }
+  sortTasks(){
+    //Sort checklist items by due date
+    let sorted = new Map([...this.getData()].sort(function(a,b){
+      let date1 = (a[0].split("_"))[1];
+      let date2 = (b[0].split("_"))[1];
+      return new Date(date2) - new Date(date1);
+    }));
+    this.updateData(sorted);
+    checkList.reloadCheckList();
+  }
+}
+
+//Intake button and corresponding function
+class ToggleButton{
+  constructor(button, func){
+    this.button = button;
+    this.func = func;
+
+    this.button.addEventListener('click', func);
+  }
+
+}
+
+let isPlaying = false;
+
+musicButton.addEventListener('click', toggleMusicMenu);
+function toggleMusicMenu(){
+  musicPlayer.classList.toggle("closed");
+}
+
+//Time selection
 var buttonList = ["8min", "12min", "16min", "20min", "24min"];
-
 for(let i = 0; i <5; i++){
   var button = document.getElementById(buttonList[i]);
   button.addEventListener("click", updateTimer);
@@ -437,6 +568,18 @@ for(let i = 0; i <5; i++){
   //button.time = 0.1;
 }
 
+var breakButtonList = ["1min", "3min", "5min", "10min", "15min"];
+var breakTimeList = [1,3,5,10,15];
+
+for(let i = 0; i <5; i++){
+  var button = document.getElementById(breakButtonList[i]);
+  button.addEventListener("click", updateBreakTimer);
+  
+  button.time = breakTimeList[i];
+  //button.time = 0.1;
+}
+
+//Ambient sounds
 var ambientList = ["wind", "brown", "fire"];
 var ambientIds = ["jX6kn9_U8qk&t", "GhgL3y-oDAs", "6VB4bgiB0yA"];
 
@@ -457,25 +600,6 @@ for(let i = 0; i<ambientList.length; i++){
   });
 }
 
-resetButton.onclick = function(){
-  timer.style.display="none";
-  timerBar.style.display = "none";
-  selectTime.style.display="block";
-  document.getElementById("timer-buttons").style.display="none";
-  studyTimer.resetTimer();
-  //resetButton.style.display="none"
-}
-stopButton.onclick = function(){
-  if(studyTimer.paused == false){
-    studyTimer.pauseTimer();
-    stopButton.innerHTML = 'start';
-  }
-  else{
-    studyTimer.resumeTimer(timer, timerBar);
-    stopButton.innerHTML = 'stop';
-  } 
-}
-
 function toggleAudio(event){
   console.log("toggle audio");
   var audio = document.getElementById(event.currentTarget.element);
@@ -491,9 +615,28 @@ function toggleAudio(event){
 	}
 }
 
-const form = document.getElementById('task-form');
-const taskList = document.getElementById('tasks');
+//Pause & Reset timer
+function resetTimer(){
+  timer.style.display="none";
+  timerBar.style.display = "none";
+  selectTime.style.display="block";
+  document.getElementById("timer-buttons").style.display="none";
+  studyTimer.resetTimer();
+}
+function pauseTimer(){
+  if(studyTimer.paused == false){
+    studyTimer.pauseTimer();
+    stopButton.innerHTML = 'start';
+  }
+  else{
+    studyTimer.resumeTimer(timer, timerBar);
+    stopButton.innerHTML = 'stop';
+  } 
+}
+resetButton.addEventListener('click', resetTimer);
+stopButton.addEventListener('click',pauseTimer);
 
+//Task checklist
 function closeTask(){
   document.getElementById("statsDropdown-content").classList.toggle("closed");
 };
@@ -504,13 +647,35 @@ function closeList(){
 toggleStat.addEventListener('click', closeTask);
 toggleList.addEventListener('click', closeList);
 
+document.getElementById("submit-task-btn").onclick = (e) =>{
+	e.preventDefault();
+	const inputField = document.getElementById('task-input');
+  const datefield = document.getElementById('date-input');
+  const timeAlloField = document.getElementById('time-allotted-input');
+  //console.log(datefield.value);
+  if(inputField.value != '' && datefield.value != '' && timeAlloField.value !=''){
+    //console.log(checkList);
+    checkList.addTask(String(inputField.value), datefield.value, false, timeAlloField.value,true);
+  }
+	form.reset();
+};
+
 //Pie Chart
+function updateChart(){
+  let values = Array.from(studyData.getData().values());
+  let labels = Array.from(studyData.getData().keys());
+  console.log(values);
+  timeChart.data.labels = labels;
+  timeChart.data.datasets[0].data = values;
+
+  timeChart.update()
+}
 function initStats(){
-  let values = Array.from(client.timeStudiedEachDay.values());
-  let labels = Array.from(client.timeStudiedEachDay.keys());
+  let values = Array.from(studyData.getData().values());
+  let labels = Array.from(studyData.getData().keys());
   console.log(values);
   Chart.defaults.plugins.legend.display = false;
-  var timeChart = new Chart("timeChart", {
+  timeChart = new Chart("timeChart", {
     type: 'bar',
     data: {
       labels: labels,
@@ -538,7 +703,7 @@ function initStats(){
   });
 }
 
-//video
+//Video Player
 function audioSetup(id, element){
   var vid = id,
 audio_streams = {},
@@ -614,28 +779,6 @@ fetch("https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleuserc
 });
 }
 
-//fetchAllData();
-var client = new Client();
-var checkList = new CheckList();
-
-client.fetchDataFromCache();
-//checkList.loadCheckList();
-//checkList.addTask("hi","hi", true);
-//checkList.deleteAllData();
-//localStorage.setItem("checkList", "");
 
 init();
-
 initStats();
-
-document.getElementById("submit-task-btn").onclick = (e) =>{
-	e.preventDefault();
-	const inputField = document.getElementById('task-input');
-  const datefield = document.getElementById('date-input');
-  //console.log(datefield.value);
-  if(inputField.value != '' && datefield.value != ''){
-    console.log(checkList);
-    checkList.addTask(inputField.value, datefield.value, true);
-  }
-	form.reset();
-};

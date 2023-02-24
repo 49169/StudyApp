@@ -73,8 +73,16 @@
             
             <div id="breakTimerContainer" class="closed">
                 <div id="breakTimer-display"></div>
+                <div id="breakIndicator"></div>
                 <progress value="35" max="100" id="break-bar" class="closed"></progress>
-                <button id="toggleBreakTimer" class="stop-button shadow" >Start</button>
+                <div class="select-time" id="select-break-time">
+                    <button id="1min" class="shadow">1 min</button>
+                    <button id="3min" class="shadow">3 min</button>
+                    <button id="5min" class="shadow">5 min</button>
+                    <button id="10min" class="shadow">10 min</button>
+                    <button id="15min" class="shadow">15 min</button>
+                </div>
+                <!--<button id="toggleBreakTimer" class="stop-button shadow" >Start</button>-->
             </div>
             <audio><source src="alarm.mp3" type="audio/mpeg"></audio>
             
@@ -132,6 +140,7 @@
     </div>
     <script src="index.js" type ="module"></script>
     <script src="ytembed.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+    
     
 </body>
