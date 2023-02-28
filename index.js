@@ -19,6 +19,7 @@ client,
 checkList,
 timeChart
 
+
 //HTML Elements
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
@@ -52,8 +53,12 @@ const popupTitle = document.getElementById('popupTitle');
 const popupDescription = document.getElementById('popupDescription');
 const closePopupBtn = document.getElementById('closePopup');
 
-function init(){
+const windSound = document.getElementById("wind-yt");
+const fireSound = document.getElementById("fire-yt");
+const brownSound = document.getElementById("brown-yt");
 
+function init(){
+  //Initializes Data
   studyMode = true;
 
   studyTimer = new StudyTimer();
@@ -68,16 +73,13 @@ function init(){
   studyData.fetchData();
 
   updateBreakIndicator();
-  //checkListData.deleteAllData();
+  checkListData.deleteAllData();
+  studyData.deleteAllData();
+  breakTimeData.deleteAllData();
 
   checkList = new CheckList();
 
-  //client.fetchDataFromCache();
   checkList.loadCheckList();
-  //checkList.deleteAllData();
-
-  //Total minutes studied per day
-  totalStudyTime = 0;
   
   //Award first time login
   let lastTimeLogged = new Date().toJSON().slice(0, 10);
@@ -92,6 +94,8 @@ function init(){
     }
   }
   localStorage.lastTimeLogged = lastTimeLogged;
+
+  initStats();
 }
 
 class Timer{
@@ -175,8 +179,6 @@ class StudyTimer extends Timer{
     console.log(timeComplete);
     var studyMinutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
     console.log(studyMinutes);
-    //totalStudyTime += studyMinutes;
-    //localStorage.totalStudyTime = totalStudyTime;
 
     var break_Time = 0;
     if(studyMinutes <= 8){
@@ -244,52 +246,86 @@ class BreakTimer extends Timer{
     updateBreakIndicator();
   }
 }
-/*
-class Client{
-  constructor(){
-    this.checkList = [];
+
+class Data{
+  constructor(id, data){
+    this.id = id;
+    this.data = new Map();
   }
-  fetchDataFromCache(){
-    if(localStorage.getItem('checkList')){
-      this.checkList = JSON.parse(localStorage.getItem('checkList'));
-      console.log(this.checkList);
-    }
-    else{
-      this.checkList = [];
-      console.log(this.checkList);
-    }
-    this.breakTimeData = Number(localStorage.breakTimeData);
-    //localStorage.breakTimeData = 10*60*1000;
-
-    this.totalStudyTime = Number(localStorage.totalStudyTime);
-    
-    let currentDate = new Date();
-    let day = currentDate.getDay();
-    let month = currentDate.getMonth();
-    let year = currentDate.getFullYear();
-
-    let lastTimeLogged = day + ',' + month +','+year;
-
-    localStorage.lastTimeLogged = lastTimeLogged;
-
-    this.timeStudiedEachDay = new Map();
-    let key = day+6 + ',' + month +','+year;
-    this.timeStudiedEachDay.set(key, 50);
-
-    localStorage.timeStudiedEachDay = JSON.stringify(Array.from(this.timeStudiedEachDay.entries()));
-      
+  storeData(){
+    localStorage.setItem(this.id, JSON.stringify(Array.from(this.data.entries())));
   }
-  loadDataToCache(){
-
+  updateData(data){
+    this.data = data;
+    this.storeData();
   }
-  setCheckList(task){
-    let data = this.checkList;
-    //data.push(task);
-    //this.checkList = data;
-    //localStorage.setItem('checkList', JSON.stringify(this.checkList));
+  updateItem(key, value){
+    this.data.set(key, value);
+    this.storeData();
+  }
+  deleteItem(key){
+    this.data.delete(key);
+    this.storeData();
+  }
+  deleteAllData(){
+    localStorage.setItem(this.id, null);
+  }
+  fetchData(){
+    this.data = new Map(JSON.parse(localStorage.getItem(this.id)));
+  }
+  getData(){
+    return this.data;
   }
 }
-*/
+
+class StudyData extends Data{
+  constructor(id, data){
+    super(id, data);
+  }
+  updateStudyTime(date, minutes){
+    if(this.data.get(date)!=null){
+      this.updateItem(date, this.getData().get(date)+minutes);
+    }
+    else{
+      this.updateItem(date, 0+minutes);
+    }
+  }
+}
+class CheckListData extends Data{
+  constructor(id, data){
+    super(id, data);
+  }
+  addNewTask(name, complete, time_allotted, due_date, current=false){
+    this.updateItem(name+"_"+due_date, [complete, time_allotted, current, 0]);
+  }
+  removeTask(id){
+    this.deleteItem(id);
+  }
+  updateTaskStatus(id, current, timeSpent = 0){
+    //Remove current task
+    for(const [key, value] of this.getData().entries()){
+      if(value[2]==true){
+        value[2] = false
+      }
+    }
+    //Set as new current task;
+    let values = this.getData().get(id);
+    values[2] = current;
+    values[3] += timeSpent;
+    this.updateItem(id, values);
+  }
+  sortTasks(){
+    //Sort checklist items by due date
+    let sorted = new Map([...this.getData()].sort(function(a,b){
+      let date1 = (a[0].split("_"))[1];
+      let date2 = (b[0].split("_"))[1];
+      return new Date(date2) - new Date(date1);
+    }));
+    this.updateData(sorted);
+    checkList.reloadCheckList();
+  }
+}
+
 class CheckList{
   constructor(){
 
@@ -300,7 +336,6 @@ class CheckList{
     const taskLabel = document.createElement('div');
     const taskTimeLabel = document.createElement('div');
     const taskDescriptionNode = document.createTextNode(description);
-    
   
     newTask.setAttribute('type', 'checkbox');
     newTask.setAttribute('name', description +"_"+date);
@@ -328,8 +363,6 @@ class CheckList{
     else{
       taskContainer.style.backgroundColor = "White";
     }
-    //taskContainer.addEventListener('click', this.updateCurrentTask);
-  
     taskList.appendChild(taskContainer);
     console.log("add task");
     if(addToStorage){
@@ -339,13 +372,8 @@ class CheckList{
     }
   }
   updateCompletion(event){
-    //console.log(event.currentTarget.children[0].id);
     if(event.currentTarget.checked){
-      var components = event.currentTarget.name.split(",");
       checkListData.removeTask(event.currentTarget.name);
-    }
-    else{
-      console.log("not checked");
     }
   }
   updateCurrentTask(event){
@@ -356,7 +384,6 @@ class CheckList{
         children[i].style.backgroundColor = "White";
       }
     }
-    //console.log(event.currentTarget);
     if(checkListData.getData().get(event.currentTarget.parentElement.children[0].name)[2]==true){
       checkListData.updateTaskStatus(String(event.currentTarget.parentElement.children[0].name), false);
     }
@@ -364,7 +391,6 @@ class CheckList{
       event.currentTarget.parentElement.style.backgroundColor = "cornflowerblue";
       checkListData.updateTaskStatus(String(event.currentTarget.parentElement.children[0].name), true);
     }
-    
   }
   loadCheckList(){
     for (const [key, value] of checkListData.getData().entries()) {
@@ -378,6 +404,7 @@ class CheckList{
     this.loadCheckList();
   }
 }
+
 function updateTimer(event){
   timer.innerHTML = "";
   timer.style.display="block";
@@ -386,8 +413,6 @@ function updateTimer(event){
   document.getElementById("timer-buttons").style.display="block";
   
   studyMinutes = event.currentTarget.time;
-  //countDownDate = new Date().getTime() + ((studyMinutes * 60 ) * 1000);
-  //startCountDown = new Date().getTime();
 
   studyTimer.startTimer(studyMinutes, timer, timerBar);
 }
@@ -427,114 +452,6 @@ function toggleBreak(event){
   Converting to Map(): new Map(JSON.parse(DATA));
 */
 
-class Data{
-  constructor(id, data){
-    this.id = id;
-    this.data = new Map();
-  }
-  storeData(){
-    localStorage.setItem(this.id, JSON.stringify(Array.from(this.data.entries())));
-  }
-  updateData(data){
-    this.data = data;
-    this.storeData();
-  }
-  updateItem(key, value){
-    this.data.set(key, value);
-    this.storeData();
-  }
-  deleteItem(key){
-    this.data.delete(key);
-    this.storeData();
-  }
-  deleteAllData(){
-    localStorage.setItem(this.id, null);
-  }
-  fetchData(){
-    this.data = new Map(JSON.parse(localStorage.getItem(this.id)));
-  }
-  getData(){
-    return this.data;
-  }
-}
-/*
-class TimeData extends Data{
-  constructor(id, data){
-    super(id,data);
-  }
-  updateData(time, data){
-    this.data[time] = data;
-  }
-  updateDataWithSpecificField(time, data, field){
-    this.data[time][field] = data;
-  }
-  getSpecificTimeData(time){
-    return this.data[time];
-  }
-}
-*/
-class StudyData extends Data{
-  constructor(id, data){
-    super(id, data);
-  }
-  updateStudyTime(date, minutes){
-    if(this.data.get(date)!=null){
-      this.updateItem(date, this.getData().get(date)+minutes);
-    }
-    else{
-      this.updateItem(date, 0+minutes);
-    }
-  }
-}
-/*
-class BreakData extends TimeData{
-  constructor(id, data){
-    super(id, data);
-  }
-  addBreakTime(date, minutes){
-    super.updateData(date, super.getSpecificTimeData(date)+=minutes);
-  }
-  substractBreakTime(date, minutes){
-    super.updateData(date, super.getSpecificTimeData(date)-=minutes);
-  }
-}
-*/
-class CheckListData extends Data{
-  constructor(id, data){
-    super(id, data);
-  }
-  addNewTask(name, complete, time_allotted, due_date, current=false){
-    this.updateItem(name+"_"+due_date, [complete, time_allotted, current, 0]);
-  }
-  removeTask(id){
-    this.deleteItem(id);
-  }
-  updateTaskStatus(id, current, timeSpent = 0){
-    //Remove current task
-    for(const [key, value] of this.getData().entries()){
-      if(value[2]==true){
-        value[2] = false;
-      }
-    }
-    //Set as new current task;
-    //console.log(id);
-    let values = this.getData().get(id);
-    values[2] = current;
-    values[3] += timeSpent;
-    this.updateItem(id, values);
-  }
-  sortTasks(){
-    //Sort checklist items by due date
-    let sorted = new Map([...this.getData()].sort(function(a,b){
-      let date1 = (a[0].split("_"))[1];
-      let date2 = (b[0].split("_"))[1];
-      return new Date(date2) - new Date(date1);
-    }));
-    this.updateData(sorted);
-    checkList.reloadCheckList();
-  }
-}
-
 let isPlaying = false;
 
 musicButton.addEventListener('click', toggleMusicMenu);
@@ -563,7 +480,7 @@ for(let i = 0; i <5; i++){
 }
 
 //Ambient sounds
-var ambientList = ["wind", "brown", "fire"];
+var ambientList = ["rain", "brown", "fire"];
 var ambientIds = ["jX6kn9_U8qk&t", "GhgL3y-oDAs", "6VB4bgiB0yA"];
 
 for(let i = 0; i<ambientList.length; i++){
@@ -572,20 +489,19 @@ for(let i = 0; i<ambientList.length; i++){
   button.audio = ambientIds[i];
   button.element = ambientList[i]+"-yt";
   button.isPlaying = false;
-  audioSetup(button.audio, ambientList[i]+"-yt");
   
   var volumeSlider = document.getElementById(ambientList[i]+"-slider");
   volumeSlider.audio = button.element;
   volumeSlider.addEventListener('input', (e) => {
     const value = e.target.value;
-    //console.log(value);
     document.getElementById(e.currentTarget.audio).volume = value / 40;
   });
 }
 
 function toggleAudio(event){
-  console.log("toggle audio");
+  //console.log("toggle audio");
   var audio = document.getElementById(event.currentTarget.element);
+  console.log(audio);
   if (event.currentTarget.isPlaying) {
 		audio.pause()
 		event.currentTarget.isPlaying = false
@@ -685,81 +601,7 @@ function initStats(){
     },
   });
 }
-//Video Player
-function audioSetup(id, element){
-  var vid = id,
-audio_streams = {},
-audio_tag = document.getElementById(element);
 
-fetch("https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleusercontent.com/gadgets/proxy?container=none&url=" + encodeURIComponent("https://www.youtube.com/watch?hl=en&v=" + vid)).then(response => {
-  if (response.ok) {
-    response.text().then(data => {
-
-      var regex = /(?:ytplayer\.config\s*=\s*|ytInitialPlayerResponse\s?=\s?)(.+?)(?:;var|;\(function|\)?;\s*if|;\s*if|;\s*ytplayer\.|;\s*<\/script)/gmsu;
-
-      data = data.split('window.getPageData')[0];
-      data = data.replace('ytInitialPlayerResponse = null', '');
-      data = data.replace('ytInitialPlayerResponse=window.ytInitialPlayerResponse', '');
-      data = data.replace('ytplayer.config={args:{raw_player_response:ytInitialPlayerResponse}};', '');
-
-      var matches = regex.exec(data);
-      var data = matches && matches.length > 1 ? JSON.parse(matches[1]) : false;
-
-      //console.log(data);
-
-      var streams = [],
-        result = {};
-
-      if (data.streamingData) {
-
-        if (data.streamingData.adaptiveFormats) {
-          streams = streams.concat(data.streamingData.adaptiveFormats);
-        }
-
-        if (data.streamingData.formats) {
-          streams = streams.concat(data.streamingData.formats);
-        }
-
-      } else {
-        return false;
-      }
-
-      streams.forEach(function(stream, n) {
-        var itag = stream.itag * 1,
-          quality = false;
-        //console.log(stream);
-        switch (itag) {
-          case 139:
-            quality = "48kbps";
-            break;
-          case 140:
-            quality = "128kbps";
-            break;
-          case 141:
-            quality = "256kbps";
-            break;
-          case 249:
-            quality = "webm_l";
-            break;
-          case 250:
-            quality = "webm_m";
-            break;
-          case 251:
-            quality = "webm_h";
-            break;
-        }
-        if (quality) audio_streams[quality] = stream.url;
-      });
-
-      //console.log(audio_streams);
-
-      audio_tag.src = audio_streams['256kbps'] || audio_streams['128kbps'] || audio_streams['48kbps'];
-      audio_tag.volume = 0.25;
-      //audio_tag.play();
-    })
-  }
-});
-}
 
 //popup
 function showPopup(title, message){
@@ -773,6 +615,5 @@ function closePopup(){
 
 closePopupBtn.addEventListener('click', closePopup);
 
-
 init();
-initStats();
+

@@ -15,23 +15,21 @@
         <div class="left-container">
             <div class="ambient-container" id="ambient-container">
                 <div class="audio-cube" >
-                    <audio  id="wind-yt"></audio>
-                    <div class="img-container" id="wind-audio">
+                    <audio  id="rain-yt" src="sounds/rain.wav"></audio>
+                    <div class="img-container" id="rain-audio">
                         <img src="icons/rain_icon.png" class="sound-icon"/>
                     </div>
-                    <input class="input-range" id="wind-slider" type="range" step="0.1" value="5" min="0" max="10">
+                    <input class="input-range" id="rain-slider" type="range" step="0.1" value="5" min="0" max="10">
                 </div>
-
                 <div class="audio-cube" >
-                    <audio  id="brown-yt"></audio>
+                    <audio  id="brown-yt" src="sounds/brown_noise.wav"></audio>
                     <div class="img-container" id="brown-audio">
                         <img src="icons/brown_icon.png" class="sound-icon"/>
                     </div>
                     <input class="input-range" id="brown-slider" type="range" step="0.1" value="5" min="0" max="10">
                 </div>
-
                 <div class="audio-cube" >
-                    <audio  id="fire-yt"></audio>
+                    <audio  id="fire-yt" src="sounds/fireplace.wav"></audio>
                     <div class="img-container" id="fire-audio">
                         <img src="icons/fire_icon.png" class="sound-icon"/>
                     </div>
@@ -90,13 +88,10 @@
                 <!--<button id="toggleBreakTimer" class="stop-button shadow" >Start</button>-->
             </div>
             <audio><source src="alarm.mp3" type="audio/mpeg"></audio>
-            
         </div>
        
-
         <div class="right-container">
             <div class="mode-container" id="mode-container">
-                
 
                 <div class >
                     <div class="img-container" id="breakToggle">
@@ -116,10 +111,9 @@
                             </form>
                             
                             <form id="time-allotted-form">
-                                <input id="time-allotted-input" type="text" placeholder="Time allotted(minutes)"</input>
+                                <input id="time-allotted-input" type="text" placeholder="Time allotted(minutes)"></input>
                             </form>
                             <input type="date" id="date-input" name="due-date" value="" min="2023-01-01" max="2024-12-31">  
-                            
                             
                         </div>
                         <input type="submit" id="submit-task-btn" value="Add"></input>
@@ -137,15 +131,13 @@
                     <img id="toggleStatsDropdown" src = "icons/chart_icon.png"/>        
                 </div> 
             </div>
-            
-               
-
         </div>
-        
     </div>
+
     <script src="index.js" type ="module"></script>
     <script src="ytembed.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+   
     
     
 </body>
