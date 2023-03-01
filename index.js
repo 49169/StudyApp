@@ -19,7 +19,6 @@ client,
 checkList,
 timeChart
 
-
 //HTML Elements
 const audio = document.getElementById("youtube");
 const playButton = document.querySelector('.play-button');
@@ -172,13 +171,10 @@ class StudyTimer extends Timer{
     this.bar = bar;
   }
   timerFinished(){
-    console.log("finished");
     var alarm = new Audio('alarm.mp3');
     alarm.play(); 
     var timeComplete = this.countDownDate-this.startCountDown;
-    console.log(timeComplete);
     var studyMinutes = Math.floor((timeComplete % (1000 * 60 * 60)) / (1000 * 60));
-    console.log(studyMinutes);
 
     var break_Time = 0;
     if(studyMinutes <= 8){
@@ -196,8 +192,8 @@ class StudyTimer extends Timer{
     else if (studyMinutes <= 24){
       break_Time  += 3;
     }
-    //console.log(break_Time);
-    
+
+    //Update break components
     showPopup("Award", break_Time+ " minutes of break time")
     if(breakTimeData.getData().get("0")!=null){
       breakTimeData.updateItem("0", breakTimeData.getData().get("0") + break_Time);
@@ -205,6 +201,9 @@ class StudyTimer extends Timer{
     else{
       breakTimeData.updateItem("0", 0 + break_Time);
     }
+    updateBreakIndicator();
+
+    //Update GUI
     console.log("timer finished");
     timer.style.display="none";
     timerBar.style.display = "none";
@@ -212,7 +211,6 @@ class StudyTimer extends Timer{
     document.getElementById("timer-buttons").style.display="none";
     
     studyData.updateStudyTime((new Date().toJSON().slice(0, 10)), studyMinutes);
-
     //Update time spent on current task if there is one
     for(const [key, value] of checkListData.getData().entries()){
       if(value[2]==true){
@@ -220,15 +218,13 @@ class StudyTimer extends Timer{
       }
     }
     checkList.reloadCheckList();
-    updateChart();
 
-    updateBreakIndicator();
+    //Update chart
+    updateChart();
   }
 }
 class BreakTimer extends Timer{
   timerFinished(){
-    console.log("break finished");
-
     var alarm = new Audio('alarm.mp3');
     alarm.play(); 
 
@@ -237,7 +233,6 @@ class BreakTimer extends Timer{
     breakIndicator.style.display = "block"
 
     var timeComplete = this.countDownDate-this.startCountDown;
-    console.log(timeComplete);
     var breakMinutes = (timeComplete/1000)/60;
 
     //Convert to seconds and then percent
@@ -277,7 +272,6 @@ class Data{
     return this.data;
   }
 }
-
 class StudyData extends Data{
   constructor(id, data){
     super(id, data);
@@ -465,28 +459,23 @@ for(let i = 0; i <5; i++){
   var button = document.getElementById(buttonList[i]);
   button.addEventListener("click", updateTimer);
   button.time = (8+i*4) + (1/60);
-  //button.time = 0.1;
 }
 
 var breakButtonList = ["1min", "3min", "5min", "10min", "15min"];
 var breakTimeList = [1,3,5,10,15];
-
 for(let i = 0; i <5; i++){
   var button = document.getElementById(breakButtonList[i]);
   button.addEventListener("click", updateBreakTimer);
   
   button.time = breakTimeList[i];
-  //button.time = 0.1;
 }
 
 //Ambient sounds
 var ambientList = ["rain", "brown", "fire"];
-var ambientIds = ["jX6kn9_U8qk&t", "GhgL3y-oDAs", "6VB4bgiB0yA"];
 
 for(let i = 0; i<ambientList.length; i++){
   var button = document.getElementById(ambientList[i]+"-audio");
   button.addEventListener("click", toggleAudio);
-  button.audio = ambientIds[i];
   button.element = ambientList[i]+"-yt";
   button.isPlaying = false;
   
@@ -499,7 +488,6 @@ for(let i = 0; i<ambientList.length; i++){
 }
 
 function toggleAudio(event){
-  //console.log("toggle audio");
   var audio = document.getElementById(event.currentTarget.element);
   console.log(audio);
   if (event.currentTarget.isPlaying) {
@@ -542,6 +530,15 @@ function closeTask(){
 function closeList(){
   document.getElementById("checkListDropdown-content").classList.toggle("closed");
 }
+
+const timeAllotInput = document.querySelector("#time-allotted-input");
+const charAllowed = /[0-9\/]+/;
+timeAllotInput.addEventListener("keypress", e => {
+  console.log(e);
+  if (!charAllowed.test(e.key)) {
+    e.preventDefault();
+  }
+});
 
 toggleStat.addEventListener('click', closeTask);
 toggleList.addEventListener('click', closeList);
