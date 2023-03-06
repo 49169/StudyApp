@@ -72,9 +72,11 @@ function init(){
   studyData.fetchData();
 
   updateBreakIndicator();
-  checkListData.deleteAllData();
-  studyData.deleteAllData();
-  breakTimeData.deleteAllData();
+  //checkListData.deleteAllData();
+  //studyData.deleteAllData();
+  //breakTimeData.deleteAllData();
+  //localStorage.lastTimeLogged=null;
+ 
 
   checkList = new CheckList();
 
@@ -82,7 +84,6 @@ function init(){
   
   //Award first time login
   let lastTimeLogged = new Date().toJSON().slice(0, 10);
-  //lastTimeLogged = null;
   if (lastTimeLogged != localStorage.lastTimeLogged){
     showPopup("Award", "5 minutes of break time")
     if(breakTimeData.getData().get("0")!=null){
@@ -103,21 +104,23 @@ class Timer{
     this.paused = true;
   }
   runTimer(parent, html, bar){
-    parent.now = new Date().getTime();
-    parent.distance = parent.countDownDate - parent.now;
+    //Update how much time is left in timer
+    parent.now += 1000;
 
-    console.log(parent.distance);
+    parent.distance = parent.countDownDate - parent.now;
     
+    //Update GUI: Progress bar 
     parent.progress = 100 - ((parent.distance)/(parent.countDownDate-parent.startCountDown) *100);
     if(bar != null){
       bar.value = parent.progress;
     }
-
-    parent.timeLeft = parent.countDownDate - parent.now;
-  
+    //Update GUI: Timer text
+    parent.timeLeft = parent.distance;
+    
     var studyMinutes = Math.floor((parent.distance % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((parent.distance % (1000 * 60)) / 1000);
 
+    //Check if timer is finished
     if(seconds<10){
       html.innerHTML = studyMinutes + ":0" + seconds + " ";
     }
@@ -131,18 +134,22 @@ class Timer{
     }
   }
   startTimer(minutes, html, bar, seconds = 0){
-    console.log("start timer");
     this.paused = false;
 
     this.distance = 0;
+    //Calculate what time the timer finishes
     this.countDownDate = new Date().getTime() + (((minutes * 60 )-1) * 1000);
     this.countDownDate += (seconds*1000);
-    this.startCountDown = new Date().getTime ();
+    //The timer starts
+    this.startCountDown = new Date().getTime();
+    this.now = new Date().getTime();
 
+    //JS Interval function
     clearInterval(this.timer);
 
     this.runTimer(this, html, bar);
-    this.countDownDate += (1) * 1000; //Have to do this because of delay
+    this.countDownDate += (1) * 1000;
+    //Starts timer; runs every 1000 miliseconds
     this.timer = setInterval(()=> this.runTimer(this, html, bar),1000);
   }
   pauseTimer(){
@@ -159,7 +166,6 @@ class Timer{
     this.paused = true;
     clearInterval(this.timer);
   }
-
   timerFinished(){
     
   }
@@ -388,7 +394,6 @@ class CheckList{
   }
   loadCheckList(){
     for (const [key, value] of checkListData.getData().entries()) {
-      //console.log(key, value);
       var keys = key.split("_");
       this.addTask(keys[0], keys[1], value[2], value[1], false, value[3]);
     }
@@ -483,7 +488,8 @@ for(let i = 0; i<ambientList.length; i++){
   volumeSlider.audio = button.element;
   volumeSlider.addEventListener('input', (e) => {
     const value = e.target.value;
-    document.getElementById(e.currentTarget.audio).volume = value / 40;
+    console.log(value);
+    document.getElementById(e.currentTarget.audio).volume = value / 10;
   });
 }
 
@@ -598,7 +604,6 @@ function initStats(){
     },
   });
 }
-
 
 //popup
 function showPopup(title, message){
